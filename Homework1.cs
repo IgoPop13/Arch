@@ -24,7 +24,7 @@ namespace HomeWorkOne
 {
     class Stuff
     {
-        public double epsilon = 10 ^ -3; // всего -3 - для проверки пп. 11 и 12, чтобы попасть в диапазон "мало, но не ноль"
+        public static double epsilon = 10 ^ -3; // всего -3 - для проверки пп. 11 и 12, чтобы попасть в диапазон "мало, но не ноль"
         public static bool isEqual (double a, double b)
         {
             return (Math.Abs(a - b) < epsilon);
@@ -56,7 +56,7 @@ namespace HomeWorkOne
             double b = 0.0;
             double c = 1.0;
             double[] solution = SquareRoot.solve(a, b, c);
-            passed = Solution.Length == 0;
+            passed = solution.Length == 0;
             return passed;
         }
 
@@ -116,8 +116,8 @@ namespace HomeWorkOne
             }
             finally
             {
-                return passed;
             }
+            return passed;
         }
 
         //11. С учетом того, что дискриминант тоже нельзя сравнивать с 0 через знак равенства, подобрать такие коэффициенты квадратного уравнения для случая одного корня кратности два, чтобы дискриминант был отличный от нуля, но меньше заданного эпсилон. Эти коэффициенты должны заменить коэффициенты в тесте из п. 7.
@@ -252,7 +252,7 @@ namespace HomeWorkOne
             
             if (D < 0.0)
             {
-                return new double[]; // p. 4
+                return new double[] {}; // p. 4
             }
             else
             {
@@ -264,7 +264,7 @@ namespace HomeWorkOne
                 }
                 else
                 {
-                    if ((b ^ 2) / (4 * c) > a) // условие определения "гораздо больше", получено эмпирически для коэффициентов п. 11, дающих очень малый D; может быть уточнено
+                    if ((b * b) / (4 * c) > a) // условие определения "гораздо больше", получено эмпирически для коэффициентов п. 11, дающих очень малый D; может быть уточнено
                     {
                         // для пп. 11 и 12: если b ^ 2 >> | 4 * c |, x1 = - (b + sign(b) * sqrt (D)) / 2; x2 = c / x1;
                         x1 = -(b + Math.Sign(b) * Math.Sqrt(D)) / 2;
