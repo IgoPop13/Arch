@@ -40,14 +40,44 @@ using System;
 namespace HomeWorkTwo
 {
 
-    interface IMovable
+    class Vector
     {
-        Move()
+        int _x;
+        int _y;
+        public Vector(int x, int y)
+        {
+            _x = x;
+            _y = y;
+        }
+        public static Vector Plus (Vector a, Vector b)
+        {
+            return new Vector (a.x + b.x, a.y + b.y);
+        }
     }
-    class Move
+    
+    class Moveable
     {
+        Vector _location;
+        Vector _velocity;
+
+        void Move()
+        {
+            _location = Vector.Plus(_location, _velocity);
+        }
+    }
+
+    class Rotable
+    {
+        double _angle;
+        double _angularVelocity;
         
+        void Rotate()
+        {
+            _angle += _angularVelocity;
+            // update _velocity
+        }
     }
+    
     
     class Stuff
     {
