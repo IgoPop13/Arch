@@ -58,44 +58,65 @@ namespace HomeWorkTwo
     interface IMovable
     {
         Vector GetLocation();
-        void SetLocation(Vector newValue);
         Vector GetVelocity();
+        void SetLocation(Vector newValue);
     }
     
     class Move
     {
         IMovable _movable;
-        public Move(IMovable _movable)
+        public Move(IMovable movable)
         {
-            _movable.SetLocation(Vector.Plus(_movable.GetLocation(), _movable.GetVelocity()));
+            _movable = movable;
+        }
+        public void  Execute()
+        {
+            _movable.SetLocation(
+                Vector.Plus(_movable.GetLocation(), _movable.GetVelocity())
+            );
         }
     }
 
-
-    
-
-    class Rotable
+    class Angle
     {
-        double _angle;
-        double _angularVelocity;
-        
-        void Rotate()
+        int _angle;
+        int _n;
+        public Angle (int angle, int n)
         {
-            _angle += _angularVelocity;
-            // update _velocity
+            _angle = angle;
+            _n = n;
+        }
+        public static Angle Plus (int angle, int aVelocity)
+        {
+            return new Angle ((angle + aVelocity) % _n, _n);
         }
     }
     
-    
-    class Stuff
+    interface IRotable
     {
-        public static double epsilon = 10 ^ -3; // всего -3 - для проверки пп. 11 и 12, чтобы попасть в диапазон "мало, но не ноль"
-        public static bool isEqual (double a, double b)
+        int GetAnge();
+        int GetAngularVelocity();
+        void SetAngle(Angle newValue);
+    }
+
+    class Rotate
+    {
+        IRotable _rotable;
+        public Rotate(IRotable rotable)
         {
-            return (Math.Abs(a - b) < epsilon);
+            _rotable = rotable;
+        }
+        public void Execute()
+        {
+            _rotable.SetAngle(Angle.Plus(_rotable.GetAngle(), _rotable.GetAngularVelocity()));
         }
     }
 
+    class MOC
+    {
+         
+    }
+    
     class Tests
     {
         private static void log (string testName, bool passed)
@@ -105,10 +126,7 @@ namespace HomeWorkTwo
 
         public static void run ()
         {
+            
         }
-    }
-
-    public class SquareRoot
-    {
     }
 }
