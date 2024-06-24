@@ -54,17 +54,25 @@ namespace HomeWorkTwo
             return new Vector (a.x + b.x, a.y + b.y);
         }
     }
-    
-    class Moveable
-    {
-        Vector _location;
-        Vector _velocity;
 
-        void Move()
+    interface IMovable
+    {
+        Vector GetLocation();
+        void SetLocation(Vector newValue);
+        Vector GetVelocity();
+    }
+    
+    class Move
+    {
+        IMovable _movable;
+        public Move(IMovable _movable)
         {
-            _location = Vector.Plus(_location, _velocity);
+            _movable.SetLocation(Vector.Plus(_movable.GetLocation(), _movable.GetVelocity()));
         }
     }
+
+
+    
 
     class Rotable
     {
