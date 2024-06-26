@@ -112,6 +112,42 @@ namespace HomeWorkTwo
         }
     }
 
+    interface UObject
+    {
+        object this[string key]
+        {
+            get;
+            set;
+        }
+    }
+
+    class MovableAdapter : IMovable
+    {
+        UObject _obj;
+        public MovableAdapter(UObject obj)
+        {
+            _obj = obj;
+        }
+
+        public Vector GetLocation()
+        {
+            return (Vector) _obj["Location"];
+        }
+        
+        public Vector GetVelocity()
+        {
+            Angle angle = (Angle) _obj["Angle"];
+            int velocity = (int) _obj["Velocity"];
+            return new Vector(velocity * Math.Cos(angle.ToDouble()), velocity * Math.Sin(angle.ToDouble()));
+        }
+        
+        public void SetLocation(Vector newValue)
+        {
+            _obj["Location"] = newValue;
+        }
+ 
+    }
+    
     class MOC
     {
          
@@ -126,7 +162,8 @@ namespace HomeWorkTwo
 
         public static void run ()
         {
-            
+            UObject obj;
+            new Move(new MovableAdapter(obj));
         }
     }
 }
