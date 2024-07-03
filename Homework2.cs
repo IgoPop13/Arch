@@ -174,7 +174,7 @@ namespace HomeWorkTwo
             _location = location;
             _velocity = velocity;
         }
-        public Vector GetLocation() { throw new NoLocationException("Can't get location."); }
+        public Vector GetLocation() { throw new NoLocationException(); } // "Can't get location."
         public Vector GetVelocity() { return _velocity; }
         public void SetLocation(Vector location) { _location = location; }
     }
@@ -189,7 +189,7 @@ namespace HomeWorkTwo
             _velocity = velocity;
         }
         public Vector GetLocation() { return _location; }
-        public Vector GetVelocity() { throw new NoVelocityException("Can't get velocity."); }
+        public Vector GetVelocity() { throw new NoVelocityException(); } // "Can't get velocity."
         public void SetLocation(Vector location) { _location = location; }
     }
 
@@ -204,7 +204,7 @@ namespace HomeWorkTwo
         }
         public Vector GetLocation() { return _location; }
         public Vector GetVelocity() { return _velocity; }
-        public void SetLocation(Vector location) { throw new NoMovementException("Can't move."); }
+        public void SetLocation(Vector location) { throw new NoMovementException(); } // "Can't move."
     }
     
     class NoLocationException : Exception {}
@@ -220,15 +220,15 @@ namespace HomeWorkTwo
             // correct
             rotate = new Rotate (new Rotable (new Angle(0, 16), 3));
             move = new Move (new Movable(new Vector(12, 5), new Vector(-7, 3)));
-            move.Ecetute();
+            move.Execute();
 
             // exceptions
             move = new Move (new MovableNoLocation(new Vector(12, 5), new Vector(-7, 3)));
-            move.Ecetute();
+            move.Execute();
             move = new Move (new MovableNoVelocity(new Vector(12, 5), new Vector(-7, 3)));
-            move.Ecetute();
+            move.Execute();
             move = new Move (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3)));
-            move.Ecetute();
+            move.Execute();
         }
     }
     
