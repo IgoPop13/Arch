@@ -72,14 +72,23 @@ namespace HomeWorkTwo
     class NoVelocityException : Exception {}
     class NoMovementException : Exception {}
 
-    interface IMovable // MOC
+    interface IMovable
     {
         public Vector GetLocation();
         public Vector GetVelocity();
         public void SetLocation(Vector newValue);
     }
-    class Movable : IMovable
+    class Movable : IMovable // MOC
     {
+        public Vector GetLocation()
+        {
+        }
+        public Vector GetVelocity()
+        {
+        }
+        public Vector SetLocation(Vector newValue)
+        {
+        }
     }
     class MovableDisabled : IMovable // MOC
     {
@@ -87,13 +96,11 @@ namespace HomeWorkTwo
         {
             throw new NoLocationException();
         }
-    }
-    public Vector GetVelocity()
+        public Vector GetVelocity()
         {
             throw new NoVelocityException();
         }
-    }
-    public Vector SetLocation(Vector newValue)
+        public Vector SetLocation(Vector newValue)
         {
             throw new NoMovementException();
         }
