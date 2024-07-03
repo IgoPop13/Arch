@@ -15,9 +15,9 @@
 //Критерии оценки:
 //За выполнение каждого пункта, перечисленного ниже начисляются баллы:
 
-//ДЗ сдано на проверку - 1 балл
-//Оформлен pull/merge request на github/gitlab - 1 балл
-//Настроен CI - 2 балла
+// OK ДЗ сдано на проверку - 1 балл
+// OK Оформлен pull/merge request на github/gitlab - 1 балл
+// OK Настроен CI - 2 балла
 //Прямолинейное равномерное движение без деформации.
 //Само движение реализовано в виде отдельного класса - 1 балл.
 //Для движущихся объектов определен интерфейс, устойчивый к появлению новых видов движущихся объектов - 1 балл
@@ -54,29 +54,6 @@ namespace HomeWorkTwo
             return new Vector (a.x + b.x, a.y + b.y);
         }
     }
-
-    interface IMovable
-    {
-        Vector GetLocation();
-        Vector GetVelocity();
-        void SetLocation(Vector newValue);
-    }
-    
-    class Move
-    {
-        IMovable _movable;
-        public Move(IMovable movable)
-        {
-            _movable = movable;
-        }
-        public void  Execute()
-        {
-            _movable.SetLocation(
-                Vector.Plus(_movable.GetLocation(), _movable.GetVelocity())
-            );
-        }
-    }
-
     class Angle
     {
         int _angle;
@@ -91,15 +68,63 @@ namespace HomeWorkTwo
             return new Angle ((angle + aVelocity) % _n, _n);
         }
     }
+    class NoLocationException : Exception {}
+    class NoVelocityException : Exception {}
+    class NoMovementException : Exception {}
+
+    interface IMovable // MOC
+    {
+        public Vector GetLocation();
+        public Vector GetVelocity();
+        public void SetLocation(Vector newValue);
+    }
+    class Movable : IMovable
+    {
+    }
+    class MovableDisabled : IMovable // MOC
+    {
+        public Vector GetLocation()
+        {
+            throw new NoLocationException();
+        }
+    }
+    public Vector GetVelocity()
+        {
+            throw new NoVelocityException();
+        }
+    }
+    public Vector SetLocation(Vector newValue)
+        {
+            throw new NoMovementException();
+        }
+    }
     
     interface IRotable
     {
-        int GetAnge();
-        int GetAngularVelocity();
-        void SetAngle(Angle newValue);
+        public int GetAngle();
+        public int GetAngularVelocity();
+        public void SetAngle(Angle newValue);
+    }
+    class Rotable : IRotable
+    {
+    }
+    
+    class MoveComand
+    {
+        IMovable _movable;
+        public Move(IMovable movable)
+        {
+            _movable = movable;
+        }
+        public void  Execute()
+        {
+            _movable.SetLocation(
+                Vector.Plus(_movable.GetLocation(), _movable.GetVelocity())
+            );
+        }
     }
 
-    class Rotate
+    class RotateComand
     {
         IRotable _rotable;
         public Rotate(IRotable rotable)
@@ -111,59 +136,51 @@ namespace HomeWorkTwo
             _rotable.SetAngle(Angle.Plus(_rotable.GetAngle(), _rotable.GetAngularVelocity()));
         }
     }
-
-    interface UObject
-    {
-        object this[string key]
-        {
-            get;
-            set;
-        }
-    }
-
-    class MovableAdapter : IMovable
-    {
-        UObject _obj;
-        public MovableAdapter(UObject obj)
-        {
-            _obj = obj;
-        }
-
-        public Vector GetLocation()
-        {
-            return (Vector) _obj["Location"];
-        }
         
-        public Vector GetVelocity()
-        {
-            Angle angle = (Angle) _obj["Angle"];
-            int velocity = (int) _obj["Velocity"];
-            return new Vector(velocity * Math.Cos(angle.ToDouble()), velocity * Math.Sin(angle.ToDouble()));
-        }
-        
-        public void SetLocation(Vector newValue)
-        {
-            _obj["Location"] = newValue;
-        }
- 
-    }
-    
-    class MOC
-    {
-         
-    }
-    
     class Tests
     {
-        private static void log (string testName, bool passed)
-        {
-            // запись в лог: время начала, время окончания, название теста, результат
-        }
-
         public static void run ()
         {
-            UObject obj;
-            new Move(new MovableAdapter(obj));
+            
         }
+//        private static void log (string testName, bool passed)
+//        {
+//        }
+
     }
+
+//    interface UObject
+//    {
+//        object this[string key]
+//        {
+//            get;
+//            set;
+//        }
+//    }
+
+//    class MovableAdapter : IMovable
+//    {
+//        UObject _obj;
+//        public MovableAdapter(UObject obj)
+//        {
+//            _obj = obj;
+//        }
+
+//       public Vector GetLocation()
+//       {
+//            return (Vector) _obj["Location"];
+//        }
+        
+//        public Vector GetVelocity()
+//        {
+//            Angle angle = (Angle) _obj["Angle"];
+//            int velocity = (int) _obj["Velocity"];
+//            return new Vector(velocity * Math.Cos(angle.ToDouble()), velocity * Math.Sin(angle.ToDouble()));
+//        }
+        
+//        public void SetLocation(Vector newValue)
+//        {
+//            _obj["Location"] = newValue;
+//        }
+//    }
 }
