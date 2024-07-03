@@ -124,7 +124,7 @@ namespace HomeWorkTwo
         {
             return _angularVelocity;
         }
-        public void SetAngle(int angle)
+        public void SetAngle(Angle angle)
         {
             _angle = angle;
         }
