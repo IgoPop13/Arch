@@ -18,14 +18,14 @@
 // OK ДЗ сдано на проверку - 1 балл
 // OK Оформлен pull/merge request на github/gitlab - 1 балл
 // OK Настроен CI - 2 балла
-//Прямолинейное равномерное движение без деформации.
-//Само движение реализовано в виде отдельного класса - 1 балл.
-//Для движущихся объектов определен интерфейс, устойчивый к появлению новых видов движущихся объектов - 1 балл
-//Реализован тесты (1 балл за все):
-//Для объекта, находящегося в точке (12, 5) и движущегося со скоростью (-7, 3) движение меняет положение объекта на (5, 8)
-//Попытка сдвинуть объект, у которого невозможно прочитать положение в пространстве, приводит к ошибке
-//Попытка сдвинуть объект, у которого невозможно прочитать значение мгновенной скорости, приводит к ошибке
-//Попытка сдвинуть объект, у которого невозможно изменить положение в пространстве, приводит к ошибке
+// OK Прямолинейное равномерное движение без деформации.
+// OK Само движение реализовано в виде отдельного класса - 1 балл.
+// OK Для движущихся объектов определен интерфейс, устойчивый к появлению новых видов движущихся объектов - 1 балл
+// OK Реализован тесты (1 балл за все):
+// OK Для объекта, находящегося в точке (12, 5) и движущегося со скоростью (-7, 3) движение меняет положение объекта на (5, 8)
+// OK Попытка сдвинуть объект, у которого невозможно прочитать положение в пространстве, приводит к ошибке
+// OK Попытка сдвинуть объект, у которого невозможно прочитать значение мгновенной скорости, приводит к ошибке
+// OK Попытка сдвинуть объект, у которого невозможно изменить положение в пространстве, приводит к ошибке
 
 //Поворот объекта вокруг оси.
 //Сам поворот реализован в виде отдельного класса - 1 балл
@@ -68,9 +68,6 @@ namespace HomeWorkTwo
             return new Angle ((angle + aVelocity) % _n, _n);
         }
     }
-    class NoLocationException : Exception {}
-    class NoVelocityException : Exception {}
-    class NoMovementException : Exception {}
 
     interface IMovable
     {
@@ -78,45 +75,8 @@ namespace HomeWorkTwo
         public Vector GetVelocity();
         public void SetLocation(Vector newValue);
     }
-    class Movable : IMovable // MOC
-    {
-        public Vector GetLocation()
-        {
-        }
-        public Vector GetVelocity()
-        {
-        }
-        public Vector SetLocation(Vector newValue)
-        {
-        }
-    }
-    class MovableDisabled : IMovable // MOC
-    {
-        public Vector GetLocation()
-        {
-            throw new NoLocationException();
-        }
-        public Vector GetVelocity()
-        {
-            throw new NoVelocityException();
-        }
-        public Vector SetLocation(Vector newValue)
-        {
-            throw new NoMovementException();
-        }
-    }
-    
-    interface IRotable
-    {
-        public int GetAngle();
-        public int GetAngularVelocity();
-        public void SetAngle(Angle newValue);
-    }
-    class Rotable : IRotable
-    {
-    }
-    
-    class MoveComand
+
+    class Move // MOC
     {
         IMovable _movable;
         public Move(IMovable movable)
@@ -131,6 +91,89 @@ namespace HomeWorkTwo
         }
     }
 
+    class Movable : IMovable
+    {
+        private Vector _location;
+        private Vector _velocity;
+        public Movable(Vector location, vector velocity)
+        {
+            _location = location;
+            _velocity = velocity;
+        }
+        public Vector GetLocation()
+        {
+            return _location;
+        }
+        public Vector GetVelocity()
+        {
+            return _velocity;
+        }
+        public void SetLocation(Vector location)
+        {
+            _location = location;
+        }
+    }
+    
+    class NoLocationException : Exception {}
+    class NoVelocityException : Exception {}
+    class NoMovementException : Exception {}
+
+    class MovableNoLocation : Movable // MOC
+    {
+        public override Vector GetLocation()
+        {
+            throw new NoLocationException("Can't get location.");
+        }
+    }
+
+    class MovableNoVelocity : Movable // MOC
+    {
+        public override Vector GetVelocity()
+        {
+            throw new NoVelocityException("Can't get velocity.");
+        }
+    }
+
+    class MovableCantMove : Movable // MOC
+    {
+        public override Vector SetLocation(Vector newValue)
+        {
+            throw new NoMovementException("Can't move.");
+        }
+    }
+    
+    class RunTest
+    {
+        void Exec()
+        {
+            Move move;
+            // correct
+            move = new Move (new Movable(new Vector(12, 5), new Vector(-7, 3)));
+            move.Ecetute();
+
+            // exceptions
+            move = new Move (new MovableNoLocation(new Vector(12, 5), new Vector(-7, 3)));
+            move.Ecetute();
+            move = new Move (new MovableNoVelocity(new Vector(12, 5), new Vector(-7, 3)));
+            move.Ecetute();
+            move = new Move (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3)));
+            move.Ecetute();
+        }
+    }
+
+
+
+    
+    interface IRotable
+    {
+        public int GetAngle();
+        public int GetAngularVelocity();
+        public void SetAngle(Angle newValue);
+    }
+    class Rotable : IRotable
+    {
+    }
+    
     class RotateComand
     {
         IRotable _rotable;
