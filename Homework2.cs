@@ -101,19 +101,6 @@ namespace HomeWorkTwo
         {
             _rotable = rotable;
         }
-        public void Execute()
-        {
-            _rotable.SetAngle(Angle.Plus(_rotable.GetAngle(), _rotable.GetAngularVelocity()));
-        }
-    }
-
-    class Rotate
-    {
-        IRotable _rotable;
-        public Rotate(IRotable rotable)
-        {
-            _rotable = rotable;
-        }
         public void  Execute()
         {
             _rotable.SetAngle(Angle.Plus(_rotable.GetAngle(), _rotable.GetAngularVelocity()));
@@ -131,7 +118,7 @@ namespace HomeWorkTwo
         }
         public int GetAngle()
         {
-            return _angle.getAngle();
+            return _angle.GetAngle();
         }
         public int GetAngularVelocity()
         {
@@ -164,7 +151,7 @@ namespace HomeWorkTwo
         }
     }
 
-    class Movable : IMovable
+    class Movable : IMovable 
     {
         private Vector _location;
         private Vector _velocity;
@@ -173,48 +160,57 @@ namespace HomeWorkTwo
             _location = location;
             _velocity = velocity;
         }
-        public Vector GetLocation()
-        {
-            return _location;
-        }
-        public Vector GetVelocity()
-        {
-            return _velocity;
-        }
-        public void SetLocation(Vector location)
+        public Vector GetLocation() { return _location; }
+        public Vector GetVelocity() { return _velocity; }
+        public void SetLocation(Vector location) { _location = location; }
+    }
+
+    class MovableNoLocation : IMovable // MOC
+    {
+        private Vector _location;
+        private Vector _velocity;
+        public Movable(Vector location, Vector velocity)
         {
             _location = location;
+            _velocity = velocity;
         }
+        public Vector GetLocation() { throw new NoLocationException("Can't get location."); }
+        public Vector GetVelocity() { return _velocity; }
+        public void SetLocation(Vector location) { _location = location; }
+    }
+
+    class MovableNoVelocity : IMovable
+    {
+        private Vector _location;
+        private Vector _velocity;
+        public Movable(Vector location, Vector velocity)
+        {
+            _location = location;
+            _velocity = velocity;
+        }
+        public Vector GetLocation() { return _location; }
+        public Vector GetVelocity() { throw new NoVelocityException("Can't get velocity."); }
+        public void SetLocation(Vector location) { _location = location; }
+    }
+
+    class MovableCantMove : IMovable  // MOC
+    {
+        private Vector _location;
+        private Vector _velocity;
+        public Movable(Vector location, Vector velocity)
+        {
+            _location = location;
+            _velocity = velocity;
+        }
+        public Vector GetLocation() { return _location; }
+        public Vector GetVelocity() { return _velocity; }
+        public void SetLocation(Vector location) { throw new NoMovementException("Can't move."); }
     }
     
     class NoLocationException : Exception {}
     class NoVelocityException : Exception {}
     class NoMovementException : Exception {}
 
-    class MovableNoLocation : Movable // MOC
-    {
-        public override Vector GetLocation()
-        {
-            throw new NoLocationException("Can't get location.");
-        }
-    }
-
-    class MovableNoVelocity : Movable // MOC
-    {
-        public override Vector GetVelocity()
-        {
-            throw new NoVelocityException("Can't get velocity.");
-        }
-    }
-
-    class MovableCantMove : Movable // MOC
-    {
-        public override Vector SetLocation(Vector newValue)
-        {
-            throw new NoMovementException("Can't move.");
-        }
-    }
-    
     class RunTest
     {
         void Exec()
