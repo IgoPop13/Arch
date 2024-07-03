@@ -169,7 +169,7 @@ namespace HomeWorkTwo
     {
         private Vector _location;
         private Vector _velocity;
-        public Movable(Vector location, Vector velocity)
+        public MovableNoLocation(Vector location, Vector velocity)
         {
             _location = location;
             _velocity = velocity;
@@ -183,7 +183,7 @@ namespace HomeWorkTwo
     {
         private Vector _location;
         private Vector _velocity;
-        public Movable(Vector location, Vector velocity)
+        public MovableNoVelocity(Vector location, Vector velocity)
         {
             _location = location;
             _velocity = velocity;
@@ -197,7 +197,7 @@ namespace HomeWorkTwo
     {
         private Vector _location;
         private Vector _velocity;
-        public Movable(Vector location, Vector velocity)
+        public MovableCantMove(Vector location, Vector velocity)
         {
             _location = location;
             _velocity = velocity;
