@@ -77,9 +77,9 @@ namespace HomeWorkTwo
             _angle = angle;
             _n = n;
         }
-        public static Angle Plus (int angle, int aVelocity)
+        public Angle Plus (int aVelocity)
         {
-            return new Angle ((angle + aVelocity) % _n, _n);
+            return new Angle ((_angle + aVelocity) % _n, _n);
         }
         public int GetAngle()
         {
@@ -89,7 +89,7 @@ namespace HomeWorkTwo
     
     interface IRotable
     {
-        public int GetAngle();
+        public Angle GetAngle();
         public int GetAngularVelocity();
         public void SetAngle(Angle newValue);
     }
@@ -103,7 +103,7 @@ namespace HomeWorkTwo
         }
         public void  Execute()
         {
-            _rotable.SetAngle(Angle.Plus(_rotable.GetAngle(), _rotable.GetAngularVelocity()));
+            _rotable.SetAngle(_rotable.GetAngle().Plus(_rotable.GetAngularVelocity()));
         }
     }
 
@@ -116,9 +116,9 @@ namespace HomeWorkTwo
             _angle = angle;
             _angularVelocity = angularVelocity;
         }
-        public int GetAngle()
+        public Angle GetAngle()
         {
-            return _angle.GetAngle();
+            return _angle;
         }
         public int GetAngularVelocity()
         {
