@@ -51,7 +51,21 @@ namespace HomeWorkTwo
         }
         public static Vector Plus (Vector a, Vector b)
         {
-            return new Vector (a.x + b.x, a.y + b.y);
+            return new Vector (a.X + b.X, a.Y + b.Y);
+        }
+        public int X
+        {
+            get
+            {
+                return _x;
+            }
+        }
+        public int Y
+        {
+            get
+            {
+                return _y;
+            }
         }
     }
     class Angle
@@ -67,7 +81,68 @@ namespace HomeWorkTwo
         {
             return new Angle ((angle + aVelocity) % _n, _n);
         }
+        public int GetAngle()
+        {
+            return _angle;
+        }
     }
+    
+    interface IRotable
+    {
+        public int GetAngle();
+        public int GetAngularVelocity();
+        public void SetAngle(Angle newValue);
+    }
+
+    class Rotate
+    {
+        IRotable _rotable;
+        public Rotate(IRotable rotable)
+        {
+            _rotable = rotable;
+        }
+        public void Execute()
+        {
+            _rotable.SetAngle(Angle.Plus(_rotable.GetAngle(), _rotable.GetAngularVelocity()));
+        }
+    }
+
+    class Rotate
+    {
+        IRotable _rotable;
+        public Rotate(IRotable rotable)
+        {
+            _rotable = rotable;
+        }
+        public void  Execute()
+        {
+            _rotable.SetAngle(Angle.Plus(_rotable.GetAngle(), _rotable.GetAngularVelocity()));
+        }
+    }
+
+    class Rotable : IRotable
+    {
+        private Angle _angle;
+        private int _angularVelocity;
+        public Rotable(Angle angle, int angularVelocity)
+        {
+            _angle = angle;
+            _angularVelocity = angularVelocity;
+        }
+        public int GetAngle()
+        {
+            return _angle.getAngle();
+        }
+        public int GetAngularVelocity()
+        {
+            return _angularVelocity;
+        }
+        public void SetAngle(int angle)
+        {
+            _angle = angle;
+        }
+    }
+
 
     interface IMovable
     {
@@ -76,7 +151,7 @@ namespace HomeWorkTwo
         public void SetLocation(Vector newValue);
     }
 
-    class Move // MOC
+    class Move
     {
         IMovable _movable;
         public Move(IMovable movable)
@@ -85,9 +160,7 @@ namespace HomeWorkTwo
         }
         public void  Execute()
         {
-            _movable.SetLocation(
-                Vector.Plus(_movable.GetLocation(), _movable.GetVelocity())
-            );
+            _movable.SetLocation(Vector.Plus(_movable.GetLocation(), _movable.GetVelocity()));
         }
     }
 
@@ -95,7 +168,7 @@ namespace HomeWorkTwo
     {
         private Vector _location;
         private Vector _velocity;
-        public Movable(Vector location, vector velocity)
+        public Movable(Vector location, Vector velocity)
         {
             _location = location;
             _velocity = velocity;
@@ -146,8 +219,10 @@ namespace HomeWorkTwo
     {
         void Exec()
         {
+            Rotate rotate;
             Move move;
             // correct
+            rotate = new Rotate (new Rotable (new Angle(0, 16), 3));
             move = new Move (new Movable(new Vector(12, 5), new Vector(-7, 3)));
             move.Ecetute();
 
@@ -160,32 +235,8 @@ namespace HomeWorkTwo
             move.Ecetute();
         }
     }
-
-
-
     
-    interface IRotable
-    {
-        public int GetAngle();
-        public int GetAngularVelocity();
-        public void SetAngle(Angle newValue);
-    }
-    class Rotable : IRotable
-    {
-    }
     
-    class RotateComand
-    {
-        IRotable _rotable;
-        public Rotate(IRotable rotable)
-        {
-            _rotable = rotable;
-        }
-        public void Execute()
-        {
-            _rotable.SetAngle(Angle.Plus(_rotable.GetAngle(), _rotable.GetAngularVelocity()));
-        }
-    }
         
     class Tests
     {
