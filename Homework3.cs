@@ -32,6 +32,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Specialized;
 
 namespace HomeWorkThree
 {
@@ -57,6 +58,14 @@ namespace HomeWorkThree
             move = new Move (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3)));
             q.Enqueue(move);
 
+            // Handler search tree MOC
+            NameValueCollection CommandsCollection = new NameValueCollection();
+            NameValueCollection ExceptionsCollection = new NameValueCollection();
+            ExceptionsCollection.Add(NoLocationException.GetType(), "NoLocationException.Handler()"); // Subject to correct
+            ExceptionsCollection.Add(NoVelocityException.GetType(), "NoVelocityException.Handler()"); // Subject to correct
+            ExceptionsCollection.Add(NoMovementException.GetType(), "NoMovementException.Handler()"); // Subject to correct
+            CommandsCollection.Add(Move.GetType(), ExceptionsCollection);
+            
             foreach(ICommand c in q)
             {
                 try
