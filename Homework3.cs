@@ -8,7 +8,7 @@
 
 // OK 1. Обернуть вызов Команды в блок try-catch.
 // OK 2. Обработчик catch должен перехватывать только самое базовое исключение.
-// 3. Есть множество различных обработчиков исключений. Выбор подходящего обработчика исключения делается на основе экземпляра перехваченного исключения и команды, которая выбросила исключение.
+// OK 3. Есть множество различных обработчиков исключений. Выбор подходящего обработчика исключения делается на основе экземпляра перехваченного исключения и команды, которая выбросила исключение.
 // 4. Реализовать Команду, которая записывает информацию о выброшенном исключении в лог.
 // 5. Реализовать обработчик исключения, который ставит Команду, пишущую в лог в очередь Команд.
 // 6. Реализовать Команду, которая повторяет Команду, выбросившую исключение.
@@ -57,6 +57,8 @@ namespace HomeWorkThree
             move = new Move (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3)));
             q.Enqueue(move);
 
+            ExceptionHandler eh = new ExceptionHandler();
+
             ICommand c;
             while(q.Count > 0)
             {
@@ -67,7 +69,7 @@ namespace HomeWorkThree
                 }
                 catch (Exception e)
                 {
-                    ExceptionHandler.Handle(c, e, q).Execute();
+                    eh.Handle(c, e, q).Execute();
                 }
             }
         }
@@ -81,17 +83,53 @@ namespace HomeWorkThree
             // Handler search tree MOC
             CommandsCollection = new NameValueCollection();
             NameValueCollection ExceptionsCollection = new NameValueCollection();
-            ExceptionsCollection.Add(NoLocationException.GetType(), "NoLocationException.Handler()"); // Subject to correct
-            ExceptionsCollection.Add(NoVelocityException.GetType(), "NoVelocityException.Handler()"); // Subject to correct
-            ExceptionsCollection.Add(NoMovementException.GetType(), "NoMovementException.Handler()"); // Subject to correct
+            ExceptionsCollection.Add(NoLocationException.GetType(), NoLocationException);
+            ExceptionsCollection.Add(NoVelocityException.GetType(), NoVelocityException);
+            ExceptionsCollection.Add(NoMovementException.GetType(), NoMovementException);
             CommandsCollection.Add(Move.GetType(), ExceptionsCollection);
         }
 
-        public static ICommand Handle(ICommand.c, Exception e, Queue q)
+        public ICommand Handle(ICommand c, Exception e, Queue q)
         {
             Type ct = c.GetType();
             Type et = e.GetType();
-            // Write ct and et
+            return new CommandsCollection.GetValues(ct)[0].GetValues(et)[0](q);
+        }
+    }
+
+    class NoLocationException : ICommand
+    {
+        Queue _q;
+        public NoLocationException(Queue q)
+        {
+            _q = q;
+        }
+        Execute()
+        {
+        }
+    }
+
+    class NoVelocityException : ICommand
+    {
+        Queue _q;
+        public NoLocationException(Queue q)
+        {
+            _q = q;
+        }
+        Execute()
+        {
+        }
+    }
+
+    class NoMovementException : ICommand
+    {
+        Queue _q;
+        public NoLocationException(Queue q)
+        {
+            _q = q;
+        }
+        Execute()
+        {
         }
     }
 
