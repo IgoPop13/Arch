@@ -88,6 +88,9 @@ namespace HomeWorkThree
             RepeatedExceptionsCollection = new NameValueCollection();
             RepeatedExceptionsCollection.Add(RepeatedCommandException, RepeatedCommandExceptionCommand);
             CommandsCollection.Add(CommandRepeater, RepeatedExceptionsCollection);
+            TwiceRepeatedExceptionsCollection = new NameValueCollection();
+            TwiceRepeatedExceptionsCollection.Add(TwiceRepeatedCommandException, TwiceRepeatedCommandExceptionCommand);
+            CommandsCollection.Add(SecondCommandRepeater, TwiceRepeatedExceptionsCollection);
         }
 
         public ICommand Handle(ICommand c, Exception e, Queue q)
@@ -98,6 +101,37 @@ namespace HomeWorkThree
         }
     }
 
+    class SecondCommandRepeater : ICommand
+    {
+        private ICommand _c;
+        public SecondCommandRepeater(ICommand c)
+        {
+            _c = c;
+        }
+        public Execute()
+        {
+            _c.Execute();
+        }
+    }
+
+    class TwiceRepeatedCommandExceptionCommand : ICommand
+    {
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public TwiceRepeatedCommandExceptionCommand(ICommand c, Exception e, Queue q)
+        {
+            _q = q;
+            _c = c;
+            _e = e;
+        }
+        Execute()
+        {
+            ICommand LogCommand = new LogCommand(c, e, q);
+            LogCommand.Execute();
+        }
+    }
+    
     class CommandRepeater : ICommand
     {
         private ICommand _c;
@@ -116,7 +150,7 @@ namespace HomeWorkThree
         private Queue _q;
         private ICommand _c;
         private Exception _e;
-        public NoLocationException(ICommand c, Exception e, Queue q)
+        public RepeatedCommandExceptionCommand(ICommand c, Exception e, Queue q)
         {
             _q = q;
             _c = c;
@@ -281,6 +315,7 @@ namespace HomeWorkThree
     class NoVelocityException : Exception {}
     class NoMovementException : Exception {}
     class RepeatedCommandException : Exception {}
+    class TwiceRepeatedCommandException : Exception {}
 
     // MOCs
     class MovableNoVelocity : IMovable // MOC
