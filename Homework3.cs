@@ -57,24 +57,41 @@ namespace HomeWorkThree
             move = new Move (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3)));
             q.Enqueue(move);
 
+            ICommand c;
+            while(q.Count > 0)
+            {
+                c = q.Deque();
+                try
+                {
+                    c.Execute();
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.Handle(c, e, q).Execute();
+                }
+            }
+        }
+    }
+
+    class ExceptionHandler
+    {
+        private NameValueCollection CommandsCollection;
+        public ExceptionHandler()
+        {
             // Handler search tree MOC
-            NameValueCollection CommandsCollection = new NameValueCollection();
+            CommandsCollection = new NameValueCollection();
             NameValueCollection ExceptionsCollection = new NameValueCollection();
             ExceptionsCollection.Add(NoLocationException.GetType(), "NoLocationException.Handler()"); // Subject to correct
             ExceptionsCollection.Add(NoVelocityException.GetType(), "NoVelocityException.Handler()"); // Subject to correct
             ExceptionsCollection.Add(NoMovementException.GetType(), "NoMovementException.Handler()"); // Subject to correct
             CommandsCollection.Add(Move.GetType(), ExceptionsCollection);
-            
-            foreach(ICommand c in q)
-            {
-                try
-                {
-                    c.Execute();
-                }
-                catch
-                {
-                }
-            }
+        }
+
+        public static ICommand Handle(ICommand.c, Exception e, Queue q)
+        {
+            Type ct = c.GetType();
+            Type et = e.GetType();
+            // Write ct and et
         }
     }
 
@@ -89,9 +106,6 @@ namespace HomeWorkThree
         }
         public void Execute()
         {
-            string ct = _c.GetType();
-            string et = _e.GetType();
-            // Write ct and et
         }
     }
 
