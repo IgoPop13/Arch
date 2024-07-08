@@ -12,8 +12,8 @@
 // OK 4. Реализовать Команду, которая записывает информацию о выброшенном исключении в лог.
 // OK 5. Реализовать обработчик исключения, который ставит Команду, пишущую в лог в очередь Команд.
 // OK 6. Реализовать Команду, которая повторяет Команду, выбросившую исключение.
-// 7. Реализовать обработчик исключения, который ставит в очередь Команду - повторитель команды, выбросившей исключение.
-// 8. С помощью Команд из пункта 4 и пункта 6 реализовать следующую обработку исключений: при первом выбросе исключения повторить команду, при повторном выбросе исключения записать информацию в лог.
+// OK 7. Реализовать обработчик исключения, который ставит в очередь Команду - повторитель команды, выбросившей исключение.
+// OK 8. С помощью Команд из пункта 4 и пункта 6 реализовать следующую обработку исключений: при первом выбросе исключения повторить команду, при повторном выбросе исключения записать информацию в лог.
 // 9. Реализовать стратегию обработки исключения - повторить два раза, потом записать в лог. Указание: создать новую команду, точно такую же как в пункте 6. Тип этой команды будет показывать, что Команду не удалось выполнить два раза.
 
 // Критерии оценки:
@@ -80,11 +80,14 @@ namespace HomeWorkThree
         {
             // Handler search tree MOC
             CommandsCollection = new NameValueCollection();
-            NameValueCollection ExceptionsCollection = new NameValueCollection();
-            ExceptionsCollection.Add(NoLocationException.GetType(), NoLocationException);
-            ExceptionsCollection.Add(NoVelocityException.GetType(), NoVelocityException);
-            ExceptionsCollection.Add(NoMovementException.GetType(), NoMovementException);
-            CommandsCollection.Add(Move.GetType(), ExceptionsCollection);
+            NameValueCollection MoveExceptionsCollection = new NameValueCollection();
+            MoveExceptionsCollection.Add(NoLocationException.GetType(), NoLocationExceptionCommand);
+            MoveExceptionsCollection.Add(NoVelocityException.GetType(), NoVelocityExceptionCommand);
+            MoveExceptionsCollection.Add(NoMovementException.GetType(), NoMovementExceptionCommand);
+            CommandsCollection.Add(Move.GetType(), MoveExceptionsCollection);
+            RepeatedExceptionsCollection = new NameValueCollection();
+            RepeatedExceptionsCollection.Add(RepeatedCommandException, RepeatedCommandExceptionCommand);
+            CommandsCollection.Add(CommandRepeater, RepeatedExceptionsCollection);
         }
 
         public ICommand Handle(ICommand c, Exception e, Queue q)
@@ -95,7 +98,20 @@ namespace HomeWorkThree
         }
     }
 
-    class NoLocationException : ICommand
+    class CommandRepeater : ICommand
+    {
+        private ICommand _c;
+        public CommandRepeater(ICommand c)
+        {
+            _c = c;
+        }
+        public Execute()
+        {
+            _c.Execute();
+        }
+    }
+
+    class RepeatedCommandExceptionCommand : ICommand
     {
         private Queue _q;
         private ICommand _c;
@@ -108,16 +124,17 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(c);
+            ICommand LogCommand = new LogCommand(c, e, q);
+            LogCommand.Execute();
         }
     }
-
-    class NoVelocityException : ICommand
+    
+    class NoLocationExceptionCommand : ICommand
     {
         private Queue _q;
         private ICommand _c;
         private Exception _e;
-        public NoLocationException(ICommand c, Exception e, Queue q)
+        public NoLocationExceptionCommand(ICommand c, Exception e, Queue q)
         {
             _q = q;
             _c = c;
@@ -129,12 +146,29 @@ namespace HomeWorkThree
         }
     }
 
-    class NoMovementException : ICommand
+    class NoVelocityExceptionCommand : ICommand
     {
         private Queue _q;
         private ICommand _c;
         private Exception _e;
-        public NoLocationException(ICommand c, Exception e, Queue q)
+        public NoLocationExceptionCommand(ICommand c, Exception e, Queue q)
+        {
+            _q = q;
+            _c = c;
+            _e = e;
+        }
+        Execute()
+        {
+            q.Enqueue(new CommandRepeater(c));
+        }
+    }
+
+    class NoMovementExceptionCommand : ICommand
+    {
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public NoLocationExceptionCommand(ICommand c, Exception e, Queue q)
         {
             _q = q;
             _c = c;
@@ -148,29 +182,16 @@ namespace HomeWorkThree
 
     class LogCommand : ICommand
     {
-        private Queue _q;
         private ICommand _c;
         private Exception _e;
-        public LogCommand(ICommand c, Exception e, Queue q)
+        public LogCommand(ICommand c, Exception e)
         {
-            _q = q;
             _c = c;
             _e = e;
         }
         public void Execute()
         {
             // Writeline("Command: {0}. Ecxeption: {1}", _c, _e);
-        }
-    }
-
-    class Log : ICommand
-    {
-        public Log(ICommand c, Exception e)
-        {
-        }
-        public void Execute()
-        {
-            // Write to log
         }
     }
 
@@ -259,6 +280,7 @@ namespace HomeWorkThree
     class NoLocationException : Exception {}
     class NoVelocityException : Exception {}
     class NoMovementException : Exception {}
+    class RepeatedCommandException : Exception {}
 
     // MOCs
     class MovableNoVelocity : IMovable // MOC
