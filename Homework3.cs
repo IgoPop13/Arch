@@ -9,9 +9,9 @@
 // OK 1. Обернуть вызов Команды в блок try-catch.
 // OK 2. Обработчик catch должен перехватывать только самое базовое исключение.
 // OK 3. Есть множество различных обработчиков исключений. Выбор подходящего обработчика исключения делается на основе экземпляра перехваченного исключения и команды, которая выбросила исключение.
-// 4. Реализовать Команду, которая записывает информацию о выброшенном исключении в лог.
-// 5. Реализовать обработчик исключения, который ставит Команду, пишущую в лог в очередь Команд.
-// 6. Реализовать Команду, которая повторяет Команду, выбросившую исключение.
+// OK 4. Реализовать Команду, которая записывает информацию о выброшенном исключении в лог.
+// OK 5. Реализовать обработчик исключения, который ставит Команду, пишущую в лог в очередь Команд.
+// OK 6. Реализовать Команду, которая повторяет Команду, выбросившую исключение.
 // 7. Реализовать обработчик исключения, который ставит в очередь Команду - повторитель команды, выбросившей исключение.
 // 8. С помощью Команд из пункта 4 и пункта 6 реализовать следующую обработку исключений: при первом выбросе исключения повторить команду, при повторном выбросе исключения записать информацию в лог.
 // 9. Реализовать стратегию обработки исключения - повторить два раза, потом записать в лог. Указание: создать новую команду, точно такую же как в пункте 6. Тип этой команды будет показывать, что Команду не удалось выполнить два раза.
@@ -26,8 +26,6 @@
 // Написаны тесты к пункту 9. - 1 балл
 // Максимальная оценка за задание 10 баллов.
 // Задание принимается, если задание оценено не менее, чем в 7 баллов.
-
-
 
 using System;
 using System.Collections;
@@ -93,57 +91,75 @@ namespace HomeWorkThree
         {
             Type ct = c.GetType();
             Type et = e.GetType();
-            return new CommandsCollection.GetValues(ct)[0].GetValues(et)[0](q);
+            return new CommandsCollection.GetValues(ct)[0].GetValues(et)[0](c, e, q);
         }
     }
 
     class NoLocationException : ICommand
     {
-        Queue _q;
-        public NoLocationException(Queue q)
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public NoLocationException(ICommand c, Exception e, Queue q)
         {
             _q = q;
+            _c = c;
+            _e = e;
         }
         Execute()
         {
+            q.Enqueue(c);
         }
     }
 
     class NoVelocityException : ICommand
     {
-        Queue _q;
-        public NoLocationException(Queue q)
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public NoLocationException(ICommand c, Exception e, Queue q)
         {
             _q = q;
+            _c = c;
+            _e = e;
         }
         Execute()
         {
+            q.Enqueue(c);
         }
     }
 
     class NoMovementException : ICommand
     {
-        Queue _q;
-        public NoLocationException(Queue q)
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public NoLocationException(ICommand c, Exception e, Queue q)
         {
             _q = q;
+            _c = c;
+            _e = e;
         }
         Execute()
         {
+            q.Enqueue(new LogCommand(c, e, q));
         }
     }
 
     class LogCommand : ICommand
     {
-        private ICommand _c
-        private Exception _e
-        public LogCommand(ICommand c, Exception e)
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public LogCommand(ICommand c, Exception e, Queue q)
         {
+            _q = q;
             _c = c;
             _e = e;
         }
         public void Execute()
         {
+            // Writeline("Command: {0}. Ecxeption: {1}", _c, _e);
         }
     }
 
