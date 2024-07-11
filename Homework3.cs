@@ -1,4 +1,4 @@
-// Домашнее задание
+ // Домашнее задание
 // Механизм обработки исключений в игре "Космическая битва"
 
 // Цель: Научится писать различные стратегии обработки исключений так, чтобы соответствующий блок try-catсh не приходилось модифицировать каждый раз, когда возникает потребность в обработке исключительной ситуации по-новому.
@@ -80,11 +80,22 @@ namespace HomeWorkThree
         {
             // Handler search tree MOC
             CommandsCollection = new NameValueCollection();
-            NameValueCollection MoveExceptionsCollection = new NameValueCollection();
-            MoveExceptionsCollection.Add(NoLocationException.GetType(), NoLocationExceptionCommand);
-            MoveExceptionsCollection.Add(NoVelocityException.GetType(), NoVelocityExceptionCommand);
-            MoveExceptionsCollection.Add(NoMovementException.GetType(), NoMovementExceptionCommand);
-            CommandsCollection.Add(Move.GetType(), MoveExceptionsCollection);
+            NameValueCollection MoveExceptionsCollection;
+            
+            MoveExceptionsCollection = new NameValueCollection();
+            MoveExceptionsCollection.Add(NoLocationException.GetType(), NoLocationExceptionCommand); // NoLocationException is a MOC type, finally should be replaced with Move type
+            CommandsCollection.Add(NoLocationExceptionCommand.GetType(), MoveExceptionsCollection); // NoLocationExceptionCommand is a MOC type, finally should be replaced with Move type
+            
+            MoveExceptionsCollection = new NameValueCollection();
+            MoveExceptionsCollection.Add(NoVelocityException.GetType(), NoVelocityExceptionCommand); // NoVelocityException is a MOC type, finally should be replaced with Move type
+            CommandsCollection.Add(NoVelocityExceptionCommand.GetType(), MoveExceptionsCollection); // NoVelocityExceptionCommand is a MOC type, finally should be replaced with Move type
+
+            MoveExceptionsCollection = new NameValueCollection();
+            MoveExceptionsCollection.Add(NoMovementException.GetType(), NoMovementExceptionCommand); // NoMovementException is a MOC type, finally should be replaced with Move type
+            CommandsCollection.Add(NoMovementExceptionCommand.GetType(), MoveExceptionsCollection); // NoMovementExceptionCommand is a MOC type, finally should be replaced with Move type
+            
+            
+            CommandsCollection.Add(NoLocationExceptionCommand.GetType(), MoveExceptionsCollection);
             RepeatedExceptionsCollection = new NameValueCollection();
             RepeatedExceptionsCollection.Add(RepeatedCommandException, RepeatedCommandExceptionCommand);
             CommandsCollection.Add(CommandRepeater, RepeatedExceptionsCollection);
@@ -236,7 +247,7 @@ namespace HomeWorkThree
         public void SetAngle(Angle newValue);
     }
 
-    class Rotate
+    class Rotate : ICommand
     {
         IRotable _rotable;
         public Rotate(IRotable rotable)
