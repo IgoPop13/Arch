@@ -10,9 +10,9 @@
 // OK 2. Обработчик catch должен перехватывать только самое базовое исключение.
 // OK 3. Есть множество различных обработчиков исключений. Выбор подходящего обработчика исключения делается на основе экземпляра перехваченного исключения и команды, которая выбросила исключение.
 // OK 4. Реализовать Команду, которая записывает информацию о выброшенном исключении в лог.
-// 5. Реализовать обработчик исключения, который ставит Команду, пишущую в лог в очередь Команд.
-// 6. Реализовать Команду, которая повторяет Команду, выбросившую исключение.
-// 7. Реализовать обработчик исключения, который ставит в очередь Команду - повторитель команды, выбросившей исключение.
+// OK 5. Реализовать обработчик исключения, который ставит Команду, пишущую в лог в очередь Команд.
+// OK 6. Реализовать Команду, которая повторяет Команду, выбросившую исключение.
+// OK 7. Реализовать обработчик исключения, который ставит в очередь Команду - повторитель команды, выбросившей исключение.
 // 8. С помощью Команд из пункта 4 и пункта 6 реализовать следующую обработку исключений: при первом выбросе исключения повторить команду, при повторном выбросе исключения записать информацию в лог.
 // 9. Реализовать стратегию обработки исключения - повторить два раза, потом записать в лог. Указание: создать новую команду, точно такую же как в пункте 6. Тип этой команды будет показывать, что Команду не удалось выполнить два раза.
 
@@ -61,11 +61,11 @@ namespace HomeWorkThree
             while(q.Count > 0)
             {
                 c = q.Deque();
-                try
+                try // point 1
                 {
                     c.Execute();
                 }
-                catch (Exception e)
+                catch (Exception e) // point 2
                 {
                     eh.Handle(c, e, q).Execute();
                 }
@@ -94,6 +94,11 @@ namespace HomeWorkThree
         public void SetLocation(Vector location) { _location = location; }
     }
     
+    interface ICommand
+    {
+        public void Execute();
+    }
+
     class MoveCommand : ICommand
     {
         IMovable _movable;
@@ -107,11 +112,6 @@ namespace HomeWorkThree
         }
     }
     
-    interface ICommand
-    {
-        public void Execute();
-    }
-
     class NoLocationException : Exception {}
     
     class NoLocationExceptionCommand : ICommand
@@ -127,7 +127,7 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(c);
+            q.Enqueue(c); // point 6
         }
     }
 
@@ -146,7 +146,7 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(new CommandRepeater(c));
+            q.Enqueue(new NoLocationExceptionCommand(c, e, q)); // point 7
         }
     }
 
@@ -165,11 +165,11 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(new LogCommand(c, e, q));
+            q.Enqueue(new LogCommand(c, e, q)); // point 5
         }
     }
 
-    class LogCommand : ICommand
+    class LogCommand : ICommand // point 4
     {
         private ICommand _c;
         private Exception _e;
@@ -190,7 +190,7 @@ namespace HomeWorkThree
         public ExceptionHandler()
         {
             // Handler search tree MOC
-            CommandsCollection = new NameValueCollection();
+            CommandsCollection = new NameValueCollection(); // point 3
             NameValueCollection MoveExceptionsCollection;
             
             MoveExceptionsCollection = new NameValueCollection();
