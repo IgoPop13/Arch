@@ -44,15 +44,15 @@ namespace HomeWorkThree
             Queue<ICommand> q = new Queue();
 
             // correct
-            move = new MoveCommand (new Movable(new Vector(12, 5), new Vector(-7, 3)));
+            move = new MoveCommand (new Movable(new Vector(12, 5), new Vector(-7, 3))); // MOC OK
             q.Enqueue(move);
             
             // exceptions
-            move = new NoLocationExceptionCommand (new MovableNoLocation(new Vector(12, 5), new Vector(-7, 3)));
+            move = new NoLocationExceptionCommand (new MovableNoLocation(new Vector(12, 5), new Vector(-7, 3))); // MOC exception, need to be replaced with MoveCommand
             q.Enqueue(move);
-            move = new NoVelocityExceptionCommand (new MovableNoVelocity(new Vector(12, 5), new Vector(-7, 3)));
+            move = new NoVelocityExceptionCommand (new MovableNoVelocity(new Vector(12, 5), new Vector(-7, 3))); // MOC exception, need to be replaced with MoveCommand
             q.Enqueue(move);
-            move = new NoMovementExceptionCommand (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3)));
+            move = new NoMovementExceptionCommand (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3))); // MOC exception, need to be replaced with MoveCommand
             q.Enqueue(move);
 
             ExceptionHandler eh = new ExceptionHandler();
@@ -402,6 +402,7 @@ namespace HomeWorkThree
             }
         }
     }
+ 
     class Angle
     {
         int _angle;
