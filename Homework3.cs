@@ -17,8 +17,8 @@
 // 9. Реализовать стратегию обработки исключения - повторить два раза, потом записать в лог. Указание: создать новую команду, точно такую же как в пункте 6. Тип этой команды будет показывать, что Команду не удалось выполнить два раза.
 
 // Критерии оценки:
-// ДЗ сдано на оценку - 2 балла
-// Реализованы пункты 4-7. - 2 балла.
+// OK ДЗ сдано на оценку - 2 балла
+// РOK еализованы пункты 4-7. - 2 балла.
 // Написаны тесты к пункту 4-7. - 2 балла
 // Реализован пункт 8. - 1 балл
 // Написаны тесты к пункту 8. - 1 балл
@@ -127,7 +127,7 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(c); // point 6
+            q.Enqueue(_c); // point 6
         }
     }
 
@@ -146,7 +146,7 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(new NoLocationExceptionCommand(c, e, q)); // point 7
+            q.Enqueue(new NoLocationExceptionCommand(_c, _e, _q)); // point 7
         }
     }
 
@@ -165,7 +165,7 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(new LogCommand(c, e, q)); // point 5
+            q.Enqueue(new LogCommand(_c, _e, _q)); // point 5
         }
     }
 
@@ -181,6 +181,23 @@ namespace HomeWorkThree
         public void Execute()
         {
             // Writeline("Command: {0}. Ecxeption: {1}", _c, _e);
+        }
+    }
+
+    class RepeatCommand : ICommand
+    {
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public NoMovementExceptionCommand(ICommand c, Exception e, Queue q)
+        {
+            _q = q;
+            _c = c;
+            _e = e;
+        }
+        Execute()
+        {
+            q.Enqueue(_c);
         }
     }
 
