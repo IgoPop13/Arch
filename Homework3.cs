@@ -10,10 +10,10 @@
 // OK 2. Обработчик catch должен перехватывать только самое базовое исключение.
 // OK 3. Есть множество различных обработчиков исключений. Выбор подходящего обработчика исключения делается на основе экземпляра перехваченного исключения и команды, которая выбросила исключение.
 // OK 4. Реализовать Команду, которая записывает информацию о выброшенном исключении в лог.
-// OK 5. Реализовать обработчик исключения, который ставит Команду, пишущую в лог в очередь Команд.
-// OK 6. Реализовать Команду, которая повторяет Команду, выбросившую исключение.
-// OK 7. Реализовать обработчик исключения, который ставит в очередь Команду - повторитель команды, выбросившей исключение.
-// OK 8. С помощью Команд из пункта 4 и пункта 6 реализовать следующую обработку исключений: при первом выбросе исключения повторить команду, при повторном выбросе исключения записать информацию в лог.
+// 5. Реализовать обработчик исключения, который ставит Команду, пишущую в лог в очередь Команд.
+// 6. Реализовать Команду, которая повторяет Команду, выбросившую исключение.
+// 7. Реализовать обработчик исключения, который ставит в очередь Команду - повторитель команды, выбросившей исключение.
+// 8. С помощью Команд из пункта 4 и пункта 6 реализовать следующую обработку исключений: при первом выбросе исключения повторить команду, при повторном выбросе исключения записать информацию в лог.
 // 9. Реализовать стратегию обработки исключения - повторить два раза, потом записать в лог. Указание: создать новую команду, точно такую же как в пункте 6. Тип этой команды будет показывать, что Команду не удалось выполнить два раза.
 
 // Критерии оценки:
@@ -38,21 +38,21 @@ namespace HomeWorkThree
         void Exec()
         {
             Rotate rotate;
-            Move move;
+            MoveCommand move;
             rotate = new Rotate (new Rotable (new Angle(0, 16), 3));
 
             Queue<ICommand> q = new Queue();
 
             // correct
-            move = new Move (new Movable(new Vector(12, 5), new Vector(-7, 3)));
+            move = new MoveCommand (new Movable(new Vector(12, 5), new Vector(-7, 3)));
             q.Enqueue(move);
             
             // exceptions
-            move = new Move (new MovableNoLocation(new Vector(12, 5), new Vector(-7, 3)));
+            move = new NoLocationExceptionCommand (new MovableNoLocation(new Vector(12, 5), new Vector(-7, 3)));
             q.Enqueue(move);
-            move = new Move (new MovableNoVelocity(new Vector(12, 5), new Vector(-7, 3)));
+            move = new NoVelocityExceptionCommand (new MovableNoVelocity(new Vector(12, 5), new Vector(-7, 3)));
             q.Enqueue(move);
-            move = new Move (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3)));
+            move = new NoMovementExceptionCommand (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3)));
             q.Enqueue(move);
 
             ExceptionHandler eh = new ExceptionHandler();
@@ -73,6 +73,117 @@ namespace HomeWorkThree
         }
     }
 
+    interface IMovable
+    {
+        public Vector GetLocation();
+        public Vector GetVelocity();
+        public void SetLocation(Vector newValue);
+    }
+
+    class Movable : IMovable 
+    {
+        private Vector _location;
+        private Vector _velocity;
+        public Movable(Vector location, Vector velocity)
+        {
+            _location = location;
+            _velocity = velocity;
+        }
+        public Vector GetLocation() { return _location; }
+        public Vector GetVelocity() { return _velocity; }
+        public void SetLocation(Vector location) { _location = location; }
+    }
+    
+    class MoveCommand : ICommand
+    {
+        IMovable _movable;
+        public MoveCommand(IMovable movable)
+        {
+            _movable = movable;
+        }
+        public void  Execute()
+        {
+            _movable.SetLocation(Vector.Plus(_movable.GetLocation(), _movable.GetVelocity()));
+        }
+    }
+    
+    interface ICommand
+    {
+        public void Execute();
+    }
+
+    class NoLocationException : Exception {}
+    
+    class NoLocationExceptionCommand : ICommand
+    {
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public NoLocationExceptionCommand(ICommand c, Exception e, Queue q)
+        {
+            _q = q;
+            _c = c;
+            _e = e;
+        }
+        Execute()
+        {
+            q.Enqueue(c);
+        }
+    }
+
+    class NoVelocityException : Exception {}
+ 
+    class NoVelocityExceptionCommand : ICommand
+    {
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public NoVelocityExceptionCommand(ICommand c, Exception e, Queue q)
+        {
+            _q = q;
+            _c = c;
+            _e = e;
+        }
+        Execute()
+        {
+            q.Enqueue(new CommandRepeater(c));
+        }
+    }
+
+    class NoMovementException : Exception {}
+
+    class NoMovementExceptionCommand : ICommand
+    {
+        private Queue _q;
+        private ICommand _c;
+        private Exception _e;
+        public NoMovementExceptionCommand(ICommand c, Exception e, Queue q)
+        {
+            _q = q;
+            _c = c;
+            _e = e;
+        }
+        Execute()
+        {
+            q.Enqueue(new LogCommand(c, e, q));
+        }
+    }
+
+    class LogCommand : ICommand
+    {
+        private ICommand _c;
+        private Exception _e;
+        public LogCommand(ICommand c, Exception e)
+        {
+            _c = c;
+            _e = e;
+        }
+        public void Execute()
+        {
+            // Writeline("Command: {0}. Ecxeption: {1}", _c, _e);
+        }
+    }
+
     class ExceptionHandler
     {
         private NameValueCollection CommandsCollection;
@@ -83,25 +194,25 @@ namespace HomeWorkThree
             NameValueCollection MoveExceptionsCollection;
             
             MoveExceptionsCollection = new NameValueCollection();
-            MoveExceptionsCollection.Add(NoLocationException.GetType(), NoLocationExceptionCommand); // NoLocationException is a MOC type, finally should be replaced with Move type
-            CommandsCollection.Add(NoLocationExceptionCommand.GetType(), MoveExceptionsCollection); // NoLocationExceptionCommand is a MOC type, finally should be replaced with Move type
+            MoveExceptionsCollection.Add(NoLocationException.GetType(), NoLocationExceptionCommand); // NoLocationExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
+            CommandsCollection.Add(NoLocationExceptionCommand.GetType(), MoveExceptionsCollection); // NoLocationExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
             
             MoveExceptionsCollection = new NameValueCollection();
-            MoveExceptionsCollection.Add(NoVelocityException.GetType(), NoVelocityExceptionCommand); // NoVelocityException is a MOC type, finally should be replaced with Move type
-            CommandsCollection.Add(NoVelocityExceptionCommand.GetType(), MoveExceptionsCollection); // NoVelocityExceptionCommand is a MOC type, finally should be replaced with Move type
+            MoveExceptionsCollection.Add(NoVelocityException.GetType(), NoVelocityExceptionCommand); // NoVelocityExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
+            CommandsCollection.Add(NoVelocityExceptionCommand.GetType(), MoveExceptionsCollection); // NoVelocityExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
 
             MoveExceptionsCollection = new NameValueCollection();
-            MoveExceptionsCollection.Add(NoMovementException.GetType(), NoMovementExceptionCommand); // NoMovementException is a MOC type, finally should be replaced with Move type
-            CommandsCollection.Add(NoMovementExceptionCommand.GetType(), MoveExceptionsCollection); // NoMovementExceptionCommand is a MOC type, finally should be replaced with Move type
+            MoveExceptionsCollection.Add(NoMovementException.GetType(), NoMovementExceptionCommand); // NoMovementExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
+            CommandsCollection.Add(NoMovementExceptionCommand.GetType(), MoveExceptionsCollection); // NoMovementExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
             
             
-            CommandsCollection.Add(NoLocationExceptionCommand.GetType(), MoveExceptionsCollection);
-            RepeatedExceptionsCollection = new NameValueCollection();
-            RepeatedExceptionsCollection.Add(RepeatedCommandException, RepeatedCommandExceptionCommand);
-            CommandsCollection.Add(CommandRepeater, RepeatedExceptionsCollection);
-            TwiceRepeatedExceptionsCollection = new NameValueCollection();
-            TwiceRepeatedExceptionsCollection.Add(TwiceRepeatedCommandException, TwiceRepeatedCommandExceptionCommand);
-            CommandsCollection.Add(SecondCommandRepeater, TwiceRepeatedExceptionsCollection);
+            // CommandsCollection.Add(NoLocationExceptionCommand.GetType(), MoveExceptionsCollection);
+            // RepeatedExceptionsCollection = new NameValueCollection();
+            // RepeatedExceptionsCollection.Add(RepeatedCommandException, RepeatedCommandExceptionCommand);
+            // CommandsCollection.Add(CommandRepeater, RepeatedExceptionsCollection);
+            // TwiceRepeatedExceptionsCollection = new NameValueCollection();
+            // TwiceRepeatedExceptionsCollection.Add(TwiceRepeatedCommandException, TwiceRepeatedCommandExceptionCommand);
+            // CommandsCollection.Add(SecondCommandRepeater, TwiceRepeatedExceptionsCollection);
         }
 
         public ICommand Handle(ICommand c, Exception e, Queue q)
@@ -174,72 +285,6 @@ namespace HomeWorkThree
         }
     }
     
-    class NoLocationExceptionCommand : ICommand
-    {
-        private Queue _q;
-        private ICommand _c;
-        private Exception _e;
-        public NoLocationExceptionCommand(ICommand c, Exception e, Queue q)
-        {
-            _q = q;
-            _c = c;
-            _e = e;
-        }
-        Execute()
-        {
-            q.Enqueue(c);
-        }
-    }
-
-    class NoVelocityExceptionCommand : ICommand
-    {
-        private Queue _q;
-        private ICommand _c;
-        private Exception _e;
-        public NoLocationExceptionCommand(ICommand c, Exception e, Queue q)
-        {
-            _q = q;
-            _c = c;
-            _e = e;
-        }
-        Execute()
-        {
-            q.Enqueue(new CommandRepeater(c));
-        }
-    }
-
-    class NoMovementExceptionCommand : ICommand
-    {
-        private Queue _q;
-        private ICommand _c;
-        private Exception _e;
-        public NoLocationExceptionCommand(ICommand c, Exception e, Queue q)
-        {
-            _q = q;
-            _c = c;
-            _e = e;
-        }
-        Execute()
-        {
-            q.Enqueue(new LogCommand(c, e, q));
-        }
-    }
-
-    class LogCommand : ICommand
-    {
-        private ICommand _c;
-        private Exception _e;
-        public LogCommand(ICommand c, Exception e)
-        {
-            _c = c;
-            _e = e;
-        }
-        public void Execute()
-        {
-            // Writeline("Command: {0}. Ecxeption: {1}", _c, _e);
-        }
-    }
-
     interface IRotable
     {
         public Angle GetAngle();
@@ -283,48 +328,6 @@ namespace HomeWorkThree
         }
     }
 
-    interface IMovable
-    {
-        public Vector GetLocation();
-        public Vector GetVelocity();
-        public void SetLocation(Vector newValue);
-    }
-
-    interface ICommand
-    {
-        public void Execute();
-    }
-    
-    class Move : ICommand
-    {
-        IMovable _movable;
-        public Move(IMovable movable)
-        {
-            _movable = movable;
-        }
-        public void  Execute()
-        {
-            _movable.SetLocation(Vector.Plus(_movable.GetLocation(), _movable.GetVelocity()));
-        }
-    }
-
-    class Movable : IMovable 
-    {
-        private Vector _location;
-        private Vector _velocity;
-        public Movable(Vector location, Vector velocity)
-        {
-            _location = location;
-            _velocity = velocity;
-        }
-        public Vector GetLocation() { return _location; }
-        public Vector GetVelocity() { return _velocity; }
-        public void SetLocation(Vector location) { _location = location; }
-    }
-
-    class NoLocationException : Exception {}
-    class NoVelocityException : Exception {}
-    class NoMovementException : Exception {}
     class RepeatedCommandException : Exception {}
     class TwiceRepeatedCommandException : Exception {}
 
