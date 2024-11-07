@@ -18,7 +18,7 @@
 
 // Критерии оценки:
 // OK ДЗ сдано на оценку - 2 балла
-// РOK еализованы пункты 4-7. - 2 балла.
+// OK Реализованы пункты 4-7. - 2 балла.
 // Написаны тесты к пункту 4-7. - 2 балла
 // Реализован пункт 8. - 1 балл
 // Написаны тесты к пункту 8. - 1 балл
@@ -61,7 +61,7 @@ namespace HomeWorkThree
             while(q.Count > 0)
             {
                 c = q.Deque();
-                try // point 1
+                try // POINT 1
                 {
                     c.Execute();
                 }
@@ -127,7 +127,7 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(_c); // point 6
+            q.Enqueue(_c); // POINT 6
         }
     }
 
@@ -146,7 +146,7 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(new NoLocationExceptionCommand(_c, _e, _q)); // point 7
+            q.Enqueue(new NoLocationExceptionCommand(_c, _e, _q)); // POINT 7
         }
     }
 
@@ -165,11 +165,11 @@ namespace HomeWorkThree
         }
         Execute()
         {
-            q.Enqueue(new LogCommand(_c, _e, _q)); // point 5
+            q.Enqueue(new LogCommand(_c, _e, _q)); // POINT 5
         }
     }
 
-    class LogCommand : ICommand // point 4
+    class LogCommand : ICommand // POINT 4
     {
         private ICommand _c;
         private Exception _e;
@@ -207,7 +207,7 @@ namespace HomeWorkThree
         public ExceptionHandler()
         {
             // Handler search tree MOC
-            CommandsCollection = new NameValueCollection(); // point 3
+            CommandsCollection = new NameValueCollection(); // POINT 3
             NameValueCollection MoveExceptionsCollection;
             
             MoveExceptionsCollection = new NameValueCollection();
