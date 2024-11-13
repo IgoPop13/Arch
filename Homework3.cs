@@ -214,8 +214,7 @@ namespace HomeWorkThree
         Execute()
         {
             _e.Data["Queue"].Enqueue(new LogCommand(_c, _e));
-            logCommand = new LogCommand(this, new Exception e("FirstTimeException queued."));
-            logCommand.Execute(); // LOG: FirstTimeCommand, Next record will be FirstTimeException - TEST OF POINT 5
+            (new LogCommand(this, new Exception ("FirstTimeException queued."))).Execute(); // LOG: FirstTimeCommand, Next record will be FirstTimeException - TEST OF POINT 5
         }
     }
 
