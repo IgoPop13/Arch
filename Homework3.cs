@@ -45,8 +45,8 @@ namespace HomeWorkThree
         {
             // Handler search tree MOC
 
-            ExceptionHandler.RegisterHandler(FirstTimeCommand.GetType(), FirstTimeException.GetType(), (ICommand c, Exception e) => { return new FirstTimeCommandExceptionHandlerCommand(c, e); });
-            ExceptionHandler.RegisterHandler(RepeatedCommand.GetType(), RepeatedException.GetType(), (ICommand c, Exception e) => { return new RepeatedCommandExceptionHandlerCommand(c, e); });
+            ExceptionHandler.RegisterHandler(FirstTimeCommand, FirstTimeException, (ICommand c, Exception e) => { return new FirstTimeCommandExceptionHandlerCommand(c, e); });
+            ExceptionHandler.RegisterHandler(RepeatedCommand, RepeatedException, (ICommand c, Exception e) => { return new RepeatedCommandExceptionHandlerCommand(c, e); });
         }
 
         void ExecTests()
@@ -60,19 +60,19 @@ namespace HomeWorkThree
             {
                 case 4:
                 case 5:
-                    ExceptionHandler.RegisterHandler(FirstTimeCommand.GetType(), FirstTimeException.GetType(), (ICommand c, Exception e) => { return new FirstTimeCommandExceptionHandlerCommand(c, e); });
+                    ExceptionHandler.RegisterHandler(FirstTimeCommand, FirstTimeException, (ICommand c, Exception e) => { return new FirstTimeCommandExceptionHandlerCommand(c, e); });
                     q.Enqueue(new FirstTimeCommand());
                     break;
                 case 6:
-                    ExceptionHandler.RegisterHandler(CommandToRepeat.GetType(), RepeatedException.GetType(), (ICommand c, Exception e) => { return new RepeatedCommandExceptionHandlerCommand(c, e); });
+                    ExceptionHandler.RegisterHandler(CommandToRepeat, RepeatedException, (ICommand c, Exception e) => { return new RepeatedCommandExceptionHandlerCommand(c, e); });
                     q.Enqueue(new CommandToRepeat());
                     break;
                 case 7:
-                    ExceptionHandler.RegisterHandler(CommandToRepeat.GetType(), RepeatedException.GetType(), (ICommand c, Exception e) => { return new QueueRepeatedCommandExceptionHandlerCommand(c, e); });
+                    ExceptionHandler.RegisterHandler(CommandToRepeat, RepeatedException, (ICommand c, Exception e) => { return new QueueRepeatedCommandExceptionHandlerCommand(c, e); });
                     q.Enqueue(new CommandToRepeat());
                     break;
                 case 8:
-                    ExceptionHandler.RegisterHandler(Point8Command.GetType(), Point8Exception.GetType(), (ICommand c, Exception e) => { return new Point8Handler(c, e); });
+                    ExceptionHandler.RegisterHandler(Point8Command, Point8Exception, (ICommand c, Exception e) => { return new Point8Handler(c, e); });
                     q.Enqueue(new Point8Command());
                     break;
             }
