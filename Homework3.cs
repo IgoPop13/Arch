@@ -127,7 +127,7 @@ namespace HomeWorkThree
         }
         public void Execute()
         {
-            (new LogCommand(this, new Exception e("NO EXCEPTION"))).Execute(); // LOG: Point8Command, NO EXCEPTION - TEST OF POINT 8
+            (new LogCommand(this, new Exception ("NO EXCEPTION"))).Execute(); // LOG: Point8Command, NO EXCEPTION - TEST OF POINT 8
             throw new Point8Exception();
         }
     }
@@ -137,7 +137,7 @@ namespace HomeWorkThree
         private ICommand _c;
         private Exception _e;
 
-        public Point8Handler((ICommand c, Exception e)) // ACTUALLY E IS NOT NEEDED HERE
+        public Point8Handler(ICommand c, Exception e) // ACTUALLY E IS NOT NEEDED HERE
         {
             _c = c;
             _e = e;
@@ -149,35 +149,33 @@ namespace HomeWorkThree
                 (new RepeatedCommandExceptionHandlerCommand(_c)).Execute();
             }
             catch(Exception ex)
-            (new LogCommand(_c, ex)).Execute();
+            {
+                (new LogCommand(_c, ex)).Execute();
+            }
         }
     }
 
     class CommandToRepeat : ICommand
     {
-        private ICommand logCommand;
         public CommandToRepeat()
         {
         }
 
         public void Execute()
         {
-            logCommand = new LogCommand(this, new Exception e("NO EXCEPTION"));
-            logCommand.Execute(); // LOG: CommandToRepeat, NO EXCEPTION - TEST OF POINT 6 OR POINT 7
+            (new LogCommand(this, new Exception ("NO EXCEPTION"))).Execute(); // LOG: CommandToRepeat, NO EXCEPTION - TEST OF POINT 6 OR POINT 7
             throw new RepeatedException();
         }
     }
 
     class FirstTimeCommand : ICommand
     {
-        private ICommand logCommand;
         public FirstTimeCommand()
         {
         }
         public void Execute()
         {
-            logCommand = new LogCommand(this, new Exception e("NO EXCEPTION"));
-            logCommand.Execute(); // LOG: FirstTimeCommand, NO EXCEPTION - TEST OF POINT 4
+            (LogCommand(this, new Exception ("NO EXCEPTION"))).Execute(); // LOG: FirstTimeCommand, NO EXCEPTION - TEST OF POINT 4
             throw new FirstTimeException();
         }
     }
