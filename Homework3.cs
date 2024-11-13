@@ -107,7 +107,7 @@ namespace HomeWorkThree
 
         private static IDictionary <Type, IDictionary <Type, Func<ICommand, Exception, ICommand>>> store;
 
-        public static RegisterHandler(Type ct, Type et, Func<ICommand, Exception, ICommand> h)
+        public static void RegisterHandler(Type ct, Type et, Func<ICommand, Exception, ICommand> h)
         {
             store[ct][et] = h;
         }
