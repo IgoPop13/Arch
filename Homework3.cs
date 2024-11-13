@@ -55,6 +55,7 @@ namespace HomeWorkThree
             Queue<ICommand> q = new Queue();
             ICommand c;
 
+
             switch(TestPoint)
             {
                 case 4:
@@ -102,7 +103,7 @@ namespace HomeWorkThree
             Type ct = c.GetType();
             Type et = e.GetType();
 
-            return store[ct][et](ct, et);
+            return store[ct][et](c, e);
         }
 
         private static IDictionary <Type, IDictionary <Type, Func<ICommand, Exception, ICommand>>> store;
@@ -175,7 +176,7 @@ namespace HomeWorkThree
         }
         public void Execute()
         {
-            (LogCommand(this, new Exception ("NO EXCEPTION"))).Execute(); // LOG: FirstTimeCommand, NO EXCEPTION - TEST OF POINT 4
+            (new LogCommand(this, new Exception ("NO EXCEPTION"))).Execute(); // LOG: FirstTimeCommand, NO EXCEPTION - TEST OF POINT 4
             throw new FirstTimeException();
         }
     }
@@ -213,7 +214,7 @@ namespace HomeWorkThree
         }
         public void Execute()
         {
-            _e.Data["Queue"].Enqueue(new LogCommand(_c, _e));
+            ((Queue<ICommand>)_e.Data["Queue"]).Enqueue(new LogCommand(_c, _e));
             (new LogCommand(this, new Exception ("FirstTimeException queued."))).Execute(); // LOG: FirstTimeCommand, Next record will be FirstTimeException - TEST OF POINT 5
         }
     }
@@ -246,7 +247,7 @@ namespace HomeWorkThree
         }
         public void Execute()
         {
-            _e.Data["Queue"].Enqueue(new RepeatedCommandExceptionHandlerCommand(_c));
+            ((Queue<ICommand>)_e.Data["Queue"]).Enqueue(new RepeatedCommandExceptionHandlerCommand(_c));
         }
     }
 }
