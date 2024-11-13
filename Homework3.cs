@@ -205,13 +205,13 @@ namespace HomeWorkThree
     {
         private ICommand _c;
         private Exception _e;
-        private ICommand logCommand;
-        public ExceptionOneCommand(ICommand c, Exception e)
+
+        public FirstTimeCommandExceptionHandlerCommand(ICommand c, Exception e)
         {
             _c = c;
             _e = e;
         }
-        Execute()
+        public void Execute()
         {
             _e.Data["Queue"].Enqueue(new LogCommand(_c, _e));
             (new LogCommand(this, new Exception ("FirstTimeException queued."))).Execute(); // LOG: FirstTimeCommand, Next record will be FirstTimeException - TEST OF POINT 5
@@ -227,7 +227,7 @@ namespace HomeWorkThree
         {
             _c = c;
         }
-        Execute()
+        public void Execute()
         {
             _c.Execute();
         }
@@ -244,7 +244,7 @@ namespace HomeWorkThree
             _c = c;
             _e = e;
         }
-        Execute()
+        public void Execute()
         {
             _e.Data["Queue"].Enqueue(new RepeatedCommandExceptionHandlerCommand(_c));
         }
