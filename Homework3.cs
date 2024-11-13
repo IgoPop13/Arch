@@ -1,4 +1,4 @@
- // Домашнее задание
+// Домашнее задание
 // Механизм обработки исключений в игре "Космическая битва"
 
 // Цель: Научится писать различные стратегии обработки исключений так, чтобы соответствующий блок try-catсh не приходилось модифицировать каждый раз, когда возникает потребность в обработке исключительной ситуации по-новому.
@@ -19,9 +19,9 @@
 // Критерии оценки:
 // OK ДЗ сдано на оценку - 2 балла
 // OK Реализованы пункты 4-7. - 2 балла.
-// Написаны тесты к пункту 4-7. - 2 балла
-// Реализован пункт 8. - 1 балл
-// Написаны тесты к пункту 8. - 1 балл
+// OK Написаны тесты к пункту 4-7. - 2 балла
+// OK Реализован пункт 8. - 1 балл
+// OK Написаны тесты к пункту 8. - 1 балл
 // Реализован пункт 9. - 1 балл
 // Написаны тесты к пункту 9. - 1 балл
 // Максимальная оценка за задание 10 баллов.
@@ -30,146 +30,163 @@
 using System;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Collections.Generic;
 
 namespace HomeWorkThree
 {
-    class RunTest
+    interface ICommand
     {
-        void Exec()
+        public void Execute();
+    }
+   
+    class Run
+    {
+        private void Init()
         {
-            Rotate rotate;
-            MoveCommand move;
-            rotate = new Rotate (new Rotable (new Angle(0, 16), 3));
+            // Handler search tree MOC
 
+            ExceptionHandler.RegisterHandler(FirstTimeCommand.GetType(), FirstTimeException.GetType(), (ICommand c, Exception e) => { return new FirstTimeCommandExceptionHandlerCommand(c, e); });
+            ExceptionHandler.RegisterHandler(RepeatedCommand.GetType(), RepeatedException.GetType(), (ICommand c, Exception e) => { return new RepeatedCommandExceptionHandlerCommand(c, e); });
+        }
+
+        void ExecTests()
+        {
+            int TestPoint = 4; // DEFINE TEST POINT #
             Queue<ICommand> q = new Queue();
-
-            // correct
-            move = new MoveCommand (new Movable(new Vector(12, 5), new Vector(-7, 3))); // MOC OK
-            q.Enqueue(move);
-            
-            // exceptions
-            move = new NoLocationExceptionCommand (new MovableNoLocation(new Vector(12, 5), new Vector(-7, 3))); // MOC exception, need to be replaced with MoveCommand
-            q.Enqueue(move);
-            move = new NoVelocityExceptionCommand (new MovableNoVelocity(new Vector(12, 5), new Vector(-7, 3))); // MOC exception, need to be replaced with MoveCommand
-            q.Enqueue(move);
-            move = new NoMovementExceptionCommand (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3))); // MOC exception, need to be replaced with MoveCommand
-            q.Enqueue(move);
-
-            ExceptionHandler eh = new ExceptionHandler();
-
             ICommand c;
+
+            switch(TestPoint)
+            {
+                case 4:
+                case 5:
+                    ExceptionHandler.RegisterHandler(FirstTimeCommand.GetType(), FirstTimeException.GetType(), (ICommand c, Exception e) => { return new FirstTimeCommandExceptionHandlerCommand(c, e); });
+                    q.Enqueue(new FirstTimeCommand());
+                    break;
+                case 6:
+                    ExceptionHandler.RegisterHandler(CommandToRepeat.GetType(), RepeatedException.GetType(), (ICommand c, Exception e) => { return new RepeatedCommandExceptionHandlerCommand(c, e); });
+                    q.Enqueue(new CommandToRepeat());
+                    break;
+                case 7:
+                    ExceptionHandler.RegisterHandler(CommandToRepeat.GetType(), RepeatedException.GetType(), (ICommand c, Exception e) => { return new QueueRepeatedCommandExceptionHandlerCommand(c, e); });
+                    q.Enqueue(new CommandToRepeat());
+                    break;
+                case 8:
+                    ExceptionHandler.RegisterHandler(Point8Command.GetType(), Point8Exception.GetType(), (ICommand c, Exception e) => { return new Point8Handler(c, e); });
+                    q.Enqueue(new Point8Command());
+                    break;
+            }
+
             while(q.Count > 0)
             {
                 c = q.Deque();
-                try // POINT 1
+// POINT 1
+                try
                 {
                     c.Execute();
                 }
-                catch (Exception e) // point 2
+// POINT 2
+                catch (Exception ex)
                 {
-                    eh.Handle(c, e, q).Execute();
+                    ex.Data.Add("Queue", q);
+                    ExceptionHandler.Handle(c, ex).Execute();
                 }
             }
         }
     }
 
-    interface IMovable
+// POINT 3
+    static class ExceptionHandler
     {
-        public Vector GetLocation();
-        public Vector GetVelocity();
-        public void SetLocation(Vector newValue);
+        public static ICommand Handle(ICommand c, Exception e)
+        {
+            Type ct = c.GetType();
+            Type et = e.GetType();
+
+            return store[ct][et](c, e);
+        }
+
+        private static IDictionary <Type, IDictionary <Type, Func<ICommand, Exception, ICommand>>> store;
+
+        public static RegisterHandler(Type ct, Type et, Func<ICommand, Exception, ICommand> h)
+        {
+            store[ct][et] = h;
+        }
     }
 
-    class Movable : IMovable 
+    class FirstTimeException : Exception {}
+    class RepeatedException : Exception{}
+
+// POINT 8
+    class Point8Exception : Exception{}
+
+    class Point8Command : ICommand
     {
-        private Vector _location;
-        private Vector _velocity;
-        public Movable(Vector location, Vector velocity)
+        public Point8Command()
         {
-            _location = location;
-            _velocity = velocity;
+
         }
-        public Vector GetLocation() { return _location; }
-        public Vector GetVelocity() { return _velocity; }
-        public void SetLocation(Vector location) { _location = location; }
-    }
-    
-    interface ICommand
-    {
-        public void Execute();
+        public void Execute()
+        {
+            (new LogCommand(this, new Exception e("NO EXCEPTION"))).Execute(); // LOG: Point8Command, NO EXCEPTION - TEST OF POINT 8
+            throw new Point8Exception();
+        }
     }
 
-    class MoveCommand : ICommand
+    class Point8Handler : ICommand
     {
-        IMovable _movable;
-        public MoveCommand(IMovable movable)
-        {
-            _movable = movable;
-        }
-        public void  Execute()
-        {
-            _movable.SetLocation(Vector.Plus(_movable.GetLocation(), _movable.GetVelocity()));
-        }
-    }
-    
-    class NoLocationException : Exception {}
-    
-    class NoLocationExceptionCommand : ICommand
-    {
-        private Queue _q;
         private ICommand _c;
         private Exception _e;
-        public NoLocationExceptionCommand(ICommand c, Exception e, Queue q)
+
+        public Point8Handler((ICommand c, Exception e)) // ACTUALLY E IS NOT NEEDED HERE
         {
-            _q = q;
             _c = c;
             _e = e;
         }
-        Execute()
+        public void Execute()
         {
-            q.Enqueue(_c); // POINT 6
+            try
+            {
+                (new RepeatedCommandExceptionHandlerCommand(_c)).Execute();
+            }
+            catch(Exception ex)
+            (new LogCommand(_c, ex)).Execute();
         }
     }
 
-    class NoVelocityException : Exception {}
- 
-    class NoVelocityExceptionCommand : ICommand
+    class CommandToRepeat : ICommand
     {
-        private Queue _q;
-        private ICommand _c;
-        private Exception _e;
-        public NoVelocityExceptionCommand(ICommand c, Exception e, Queue q)
+        private ICommand logCommand;
+        public CommandToRepeat()
         {
-            _q = q;
-            _c = c;
-            _e = e;
         }
-        Execute()
+
+        public void Execute()
         {
-            q.Enqueue(new NoLocationExceptionCommand(_c, _e, _q)); // POINT 7
+            logCommand = new LogCommand(this, new Exception e("NO EXCEPTION"));
+            logCommand.Execute(); // LOG: CommandToRepeat, NO EXCEPTION - TEST OF POINT 6 OR POINT 7
+            throw new RepeatedException();
         }
     }
 
-    class NoMovementException : Exception {}
-
-    class NoMovementExceptionCommand : ICommand
+    class FirstTimeCommand : ICommand
     {
-        private Queue _q;
-        private ICommand _c;
-        private Exception _e;
-        public NoMovementExceptionCommand(ICommand c, Exception e, Queue q)
+        private ICommand logCommand;
+        public FirstTimeCommand()
         {
-            _q = q;
-            _c = c;
-            _e = e;
         }
-        Execute()
+        public void Execute()
         {
-            q.Enqueue(new LogCommand(_c, _e, _q)); // POINT 5
+            logCommand = new LogCommand(this, new Exception e("NO EXCEPTION"));
+            logCommand.Execute(); // LOG: FirstTimeCommand, NO EXCEPTION - TEST OF POINT 4
+            throw new FirstTimeException();
         }
     }
 
-    class LogCommand : ICommand // POINT 4
+    class RepeatedCommandException : Exception {}
+
+// POINT 4
+
+    class LogCommand : ICommand
     {
         private ICommand _c;
         private Exception _e;
@@ -184,258 +201,55 @@ namespace HomeWorkThree
         }
     }
 
-    class RepeatCommand : ICommand
+// POINT 5
+
+    class FirstTimeCommandExceptionHandlerCommand : ICommand
     {
-        private Queue _q;
         private ICommand _c;
         private Exception _e;
-        public NoMovementExceptionCommand(ICommand c, Exception e, Queue q)
+        private ICommand logCommand;
+        public ExceptionOneCommand(ICommand c, Exception e)
         {
-            _q = q;
             _c = c;
             _e = e;
         }
         Execute()
         {
-            q.Enqueue(_c);
+            _e.Data["Queue"].Enqueue(new LogCommand(_c, _e));
+            logCommand = new LogCommand(this, new Exception e("FirstTimeException queued."));
+            logCommand.Execute(); // LOG: FirstTimeCommand, Next record will be FirstTimeException - TEST OF POINT 5
         }
     }
 
-    class ExceptionHandler
-    {
-        private NameValueCollection CommandsCollection;
-        public ExceptionHandler()
-        {
-            // Handler search tree MOC
-            CommandsCollection = new NameValueCollection(); // POINT 3
-            NameValueCollection MoveExceptionsCollection;
-            
-            MoveExceptionsCollection = new NameValueCollection();
-            MoveExceptionsCollection.Add(NoLocationException.GetType(), NoLocationExceptionCommand); // NoLocationExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
-            CommandsCollection.Add(NoLocationExceptionCommand.GetType(), MoveExceptionsCollection); // NoLocationExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
-            
-            MoveExceptionsCollection = new NameValueCollection();
-            MoveExceptionsCollection.Add(NoVelocityException.GetType(), NoVelocityExceptionCommand); // NoVelocityExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
-            CommandsCollection.Add(NoVelocityExceptionCommand.GetType(), MoveExceptionsCollection); // NoVelocityExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
+// POINT 6
 
-            MoveExceptionsCollection = new NameValueCollection();
-            MoveExceptionsCollection.Add(NoMovementException.GetType(), NoMovementExceptionCommand); // NoMovementExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
-            CommandsCollection.Add(NoMovementExceptionCommand.GetType(), MoveExceptionsCollection); // NoMovementExceptionCommand is a MOC type, finally should be replaced with MoveCommand type
-            
-            
-            // CommandsCollection.Add(NoLocationExceptionCommand.GetType(), MoveExceptionsCollection);
-            // RepeatedExceptionsCollection = new NameValueCollection();
-            // RepeatedExceptionsCollection.Add(RepeatedCommandException, RepeatedCommandExceptionCommand);
-            // CommandsCollection.Add(CommandRepeater, RepeatedExceptionsCollection);
-            // TwiceRepeatedExceptionsCollection = new NameValueCollection();
-            // TwiceRepeatedExceptionsCollection.Add(TwiceRepeatedCommandException, TwiceRepeatedCommandExceptionCommand);
-            // CommandsCollection.Add(SecondCommandRepeater, TwiceRepeatedExceptionsCollection);
-        }
-
-        public ICommand Handle(ICommand c, Exception e, Queue q)
-        {
-            Type ct = c.GetType();
-            Type et = e.GetType();
-            return new CommandsCollection.GetValues(ct)[0].GetValues(et)[0](c, e, q);
-        }
-    }
-
-    class SecondCommandRepeater : ICommand
+    class RepeatedCommandExceptionHandlerCommand : ICommand
     {
         private ICommand _c;
-        public SecondCommandRepeater(ICommand c)
+        public RepeatedCommandExceptionHandlerCommand(ICommand c)
         {
             _c = c;
         }
-        public Execute()
+        Execute()
         {
             _c.Execute();
         }
     }
 
-    class TwiceRepeatedCommandExceptionCommand : ICommand
+// POINT 7
+
+    class QueueRepeatedCommandExceptionHandlerCommand : ICommand
     {
-        private Queue _q;
         private ICommand _c;
         private Exception _e;
-        public TwiceRepeatedCommandExceptionCommand(ICommand c, Exception e, Queue q)
+        public QueueRepeatedCommandExceptionHandlerCommand(ICommand c, Exception e)
         {
-            _q = q;
             _c = c;
             _e = e;
         }
         Execute()
         {
-            ICommand LogCommand = new LogCommand(c, e, q);
-            LogCommand.Execute();
-        }
-    }
-    
-    class CommandRepeater : ICommand
-    {
-        private ICommand _c;
-        public CommandRepeater(ICommand c)
-        {
-            _c = c;
-        }
-        public Execute()
-        {
-            _c.Execute();
-        }
-    }
-
-    class RepeatedCommandExceptionCommand : ICommand
-    {
-        private Queue _q;
-        private ICommand _c;
-        private Exception _e;
-        public RepeatedCommandExceptionCommand(ICommand c, Exception e, Queue q)
-        {
-            _q = q;
-            _c = c;
-            _e = e;
-        }
-        Execute()
-        {
-            ICommand LogCommand = new LogCommand(c, e, q);
-            LogCommand.Execute();
-        }
-    }
-    
-    interface IRotable
-    {
-        public Angle GetAngle();
-        public int GetAngularVelocity();
-        public void SetAngle(Angle newValue);
-    }
-
-    class Rotate : ICommand
-    {
-        IRotable _rotable;
-        public Rotate(IRotable rotable)
-        {
-            _rotable = rotable;
-        }
-        public void  Execute()
-        {
-            _rotable.SetAngle(_rotable.GetAngle().Plus(_rotable.GetAngularVelocity()));
-        }
-    }
-
-    class Rotable : IRotable
-    {
-        private Angle _angle;
-        private int _angularVelocity;
-        public Rotable(Angle angle, int angularVelocity)
-        {
-            _angle = angle;
-            _angularVelocity = angularVelocity;
-        }
-        public Angle GetAngle()
-        {
-            return _angle;
-        }
-        public int GetAngularVelocity()
-        {
-            return _angularVelocity;
-        }
-        public void SetAngle(Angle angle)
-        {
-            _angle = angle;
-        }
-    }
-
-    class RepeatedCommandException : Exception {}
-    class TwiceRepeatedCommandException : Exception {}
-
-    // MOCs
-    class MovableNoVelocity : IMovable // MOC
-    {
-        private Vector _location;
-        private Vector _velocity;
-        public MovableNoVelocity(Vector location, Vector velocity)
-        {
-            _location = location;
-            _velocity = velocity;
-        }
-        public Vector GetLocation() { return _location; }
-        public Vector GetVelocity() { throw new NoVelocityException(); } // "Can't get velocity."
-        public void SetLocation(Vector location) { _location = location; }
-    }
-
-    class MovableCantMove : IMovable  // MOC
-    {
-        private Vector _location;
-        private Vector _velocity;
-        public MovableCantMove(Vector location, Vector velocity)
-        {
-            _location = location;
-            _velocity = velocity;
-        }
-        public Vector GetLocation() { return _location; }
-        public Vector GetVelocity() { return _velocity; }
-        public void SetLocation(Vector location) { throw new NoMovementException(); } // "Can't move."
-    }
-
-    class MovableNoLocation : IMovable // MOC
-    {
-        private Vector _location;
-        private Vector _velocity;
-        public MovableNoLocation(Vector location, Vector velocity)
-        {
-            _location = location;
-            _velocity = velocity;
-        }
-        public Vector GetLocation() { throw new NoLocationException(); } // "Can't get location."
-        public Vector GetVelocity() { return _velocity; }
-        public void SetLocation(Vector location) { _location = location; }
-    }
-
-    class Vector
-    {
-        int _x;
-        int _y;
-        public Vector(int x, int y)
-        {
-            _x = x;
-            _y = y;
-        }
-        public static Vector Plus (Vector a, Vector b)
-        {
-            return new Vector (a.X + b.X, a.Y + b.Y);
-        }
-        public int X
-        {
-            get
-            {
-                return _x;
-            }
-        }
-        public int Y
-        {
-            get
-            {
-                return _y;
-            }
-        }
-    }
- 
-    class Angle
-    {
-        int _angle;
-        int _n;
-        public Angle (int angle, int n)
-        {
-            _angle = angle;
-            _n = n;
-        }
-        public Angle Plus (int aVelocity)
-        {
-            return new Angle ((_angle + aVelocity) % _n, _n);
-        }
-        public int GetAngle()
-        {
-            return _angle;
+            _e.Data["Queue"].Enqueue(new RepeatedCommandExceptionHandlerCommand(_c));
         }
     }
 }
