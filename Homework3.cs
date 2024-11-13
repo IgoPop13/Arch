@@ -46,13 +46,13 @@ namespace HomeWorkThree
             // Handler search tree MOC
 
             ExceptionHandler.RegisterHandler(typeof(FirstTimeCommand), typeof(FirstTimeException), (ICommand c, Exception e) => { return new FirstTimeCommandExceptionHandlerCommand(c, e); });
-            ExceptionHandler.RegisterHandler(typeof(RepeatedCommand), typeof(RepeatedException), (ICommand c, Exception e) => { return new RepeatedCommandExceptionHandlerCommand(c, e); });
+            ExceptionHandler.RegisterHandler(typeof(CommandToRepeat), typeof(RepeatedException), (ICommand c, Exception e) => { return new RepeatedCommandExceptionHandlerCommand(c, e); });
         }
 
         void ExecTests()
         {
             int TestPoint = 4; // DEFINE TEST POINT #
-            Queue<ICommand> q = new Queue();
+            Queue<ICommand> q = new Queue<ICommand>();
             ICommand c;
 
 
