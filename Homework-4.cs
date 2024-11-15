@@ -45,6 +45,21 @@ using System;
 namespace HomeWorkFour
 {
 
+    interface ICommand
+    {
+        public void Execute();
+    }
+
+    class Command : ICommand
+    {
+        public Command()
+        {
+        }
+        public void Execute()
+        {
+        }
+    }
+    
     class Vector
     {
         int _x;
@@ -135,8 +150,7 @@ namespace HomeWorkFour
         }
     }
 
-
-    interface IMovable
+    interface IMoving
     {
         public Vector GetLocation();
         public Vector GetVelocity();
@@ -145,22 +159,22 @@ namespace HomeWorkFour
 
     class Move
     {
-        IMovable _movable;
-        public Move(IMovable movable)
+        IMoving _moving;
+        public Move(IMoving moving)
         {
-            _movable = movable;
+            _moving = moving;
         }
         public void  Execute()
         {
-            _movable.SetLocation(Vector.Plus(_movable.GetLocation(), _movable.GetVelocity()));
+            _moving.SetLocation(Vector.Plus(_moving.GetLocation(), _moving.GetVelocity()));
         }
     }
 
-    class Movable : IMovable 
+    class Moving : IMoving
     {
         private Vector _location;
         private Vector _velocity;
-        public Movable(Vector location, Vector velocity)
+        public Moving(Vector location, Vector velocity)
         {
             _location = location;
             _velocity = velocity;
@@ -170,48 +184,6 @@ namespace HomeWorkFour
         public void SetLocation(Vector location) { _location = location; }
     }
 
-    class MovableNoLocation : IMovable // MOC
-    {
-        private Vector _location;
-        private Vector _velocity;
-        public MovableNoLocation(Vector location, Vector velocity)
-        {
-            _location = location;
-            _velocity = velocity;
-        }
-        public Vector GetLocation() { throw new NoLocationException(); } // "Can't get location."
-        public Vector GetVelocity() { return _velocity; }
-        public void SetLocation(Vector location) { _location = location; }
-    }
-
-    class MovableNoVelocity : IMovable
-    {
-        private Vector _location;
-        private Vector _velocity;
-        public MovableNoVelocity(Vector location, Vector velocity)
-        {
-            _location = location;
-            _velocity = velocity;
-        }
-        public Vector GetLocation() { return _location; }
-        public Vector GetVelocity() { throw new NoVelocityException(); } // "Can't get velocity."
-        public void SetLocation(Vector location) { _location = location; }
-    }
-
-    class MovableCantMove : IMovable  // MOC
-    {
-        private Vector _location;
-        private Vector _velocity;
-        public MovableCantMove(Vector location, Vector velocity)
-        {
-            _location = location;
-            _velocity = velocity;
-        }
-        public Vector GetLocation() { return _location; }
-        public Vector GetVelocity() { return _velocity; }
-        public void SetLocation(Vector location) { throw new NoMovementException(); } // "Can't move."
-    }
-    
     class NoLocationException : Exception {}
     class NoVelocityException : Exception {}
     class NoMovementException : Exception {}
@@ -237,20 +209,6 @@ namespace HomeWorkFour
         }
     }
     
-    
-        
-    class Tests
-    {
-        public static void run ()
-        {
-            
-        }
-//        private static void log (string testName, bool passed)
-//        {
-//        }
-
-    }
-
 //    interface UObject
 //    {
 //        object this[string key]
@@ -260,10 +218,10 @@ namespace HomeWorkFour
 //        }
 //    }
 
-//    class MovableAdapter : IMovable
+//    class MovingAdapter : IMoving
 //    {
 //        UObject _obj;
-//        public MovableAdapter(UObject obj)
+//        public MovingAdapter(UObject obj)
 //        {
 //            _obj = obj;
 //        }
