@@ -92,7 +92,7 @@ namespace HomeWorkFour
         }
     }
     
-    interface IRotable
+    interface IRotating
     {
         public Angle GetAngle();
         public int GetAngularVelocity();
@@ -101,22 +101,22 @@ namespace HomeWorkFour
 
     class Rotate
     {
-        IRotable _rotable;
-        public Rotate(IRotable rotable)
+        IRotating _rotating;
+        public Rotate(IRotating rotating)
         {
-            _rotable = rotable;
+            _rotating = rotating;
         }
         public void  Execute()
         {
-            _rotable.SetAngle(_rotable.GetAngle().Plus(_rotable.GetAngularVelocity()));
+            _rotating.SetAngle(_rotating.GetAngle().Plus(_rotating.GetAngularVelocity()));
         }
     }
 
-    class Rotable : IRotable
+    class Rotating : IRotating
     {
         private Angle _angle;
         private int _angularVelocity;
-        public Rotable(Angle angle, int angularVelocity)
+        public Rotating(Angle angle, int angularVelocity)
         {
             _angle = angle;
             _angularVelocity = angularVelocity;
