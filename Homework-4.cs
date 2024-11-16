@@ -26,11 +26,11 @@
 // 6. Реализовать команду поворота, которая еще и меняет вектор мгновенной скорости, если есть.
 
 // Критерии оценки:
-// Домашнее задание сдано - 1 балл.
-// (1) Реализована команда CheckFuelCommand - 1 балл
-// (1) Написаны тесты к CheckFuelComamnd - 1 балл
-// (2) Реализована команда BurnFuelCommand - 1 балл
-// (2) Написаны тесты к BurnFuelComamnd - 1 балл
+// OK Домашнее задание сдано - 1 балл.
+// OK (1) Реализована команда CheckFuelCommand - 1 балл
+// OK (1) Написаны тесты к CheckFuelComamnd - 1 балл
+// OK (2) Реализована команда BurnFuelCommand - 1 балл
+// OK (2) Написаны тесты к BurnFuelComamnd - 1 балл
 // (3) Реализована макрокоманда движения по прямой с расходом топлива и тесты к ней - 1 балл
 // (4) Написаны тесты к MacroComamnd - 1 балл
 // (5) Реализована команда ChangeVelocityCommand - 1 балл
@@ -45,21 +45,97 @@ using System;
 namespace HomeWorkFour
 {
 
+    class NoLocationException : Exception {}
+    class NoVelocityException : Exception {}
+    class NoMovementException : Exception {}
+    class CommandException : Exception {}
+
+    class RunTest
+    {
+        void CheckFuelCommandTest()
+        {
+            CheckFuelCommand checkFuelCommand;
+            Fuel fuel;
+
+            // TEST: CheckFuelCommand 
+            
+            // correct
+            fuel = new Fuel(10, 1);
+            checkFuelCommand = new CheckFuelCommand (fuel);
+            try
+            {
+                checkFuelCommand.Execute();
+            }
+            catch (CommandException ce)
+            {
+                throw (new Exception("CheckFuelCommand success test failed"));
+            }
+            // test passed
+
+            // exception
+            fuel = new Fuel(1, 2);
+            checkFuelCommand = new CheckFuelCommand (fuel);
+            try
+            {
+                checkFuelCommand.Execute();
+            }
+            catch (CommandException ce)
+            {
+                // test passed
+            }
+            // test failed
+            throw (new Exception("CheckFuelCommand unsuccess test failed"));
+        }
+
+        void BurnFuelCommandTest()
+        {
+            BurnFuelCommand burnFuelCommand;
+            Fuel fuel;
+
+            // TEST: BurnFuelCommand 
+            
+            // correct
+            fuel = new Fuel(10, 1);
+            burnFuelCommand = new BurnFuelCommand (fuel);
+            try
+            {
+                burnFuelCommand.Execute();
+            }
+            catch (CommandException ce)
+            {
+                throw (new Exception("BurnFuelCommand success test failed"));
+            }
+            if (fuel.GetFuel() <> 9)
+                throw (new Exception("BurnFuelCommand success test failed"));
+            // test passed
+
+            // exception
+            fuel = new Fuel(1, 2);
+            burnFuelCommand = new BurnFuelCommand (fuel);
+            try
+            {
+                burnFuelCommand.Execute();
+            }
+            catch (CommandException ce)
+            {
+                // test passed
+            }
+            // test failed
+            throw (new Exception("BurnFuelCommand unsuccess test failed"));
+        }
+
+        void ExecTests()
+        {
+            CheckFuelCommandTest();
+            BurnFuelCommandTest();
+        }
+    }
+
     interface ICommand
     {
         public void Execute();
     }
 
-    class Command : ICommand
-    {
-        public Command()
-        {
-        }
-        public void Execute()
-        {
-        }
-    }
-    
     class Vector
     {
         int _x;
@@ -106,7 +182,108 @@ namespace HomeWorkFour
             return _angle;
         }
     }
-    
+
+    class Fuel
+    {
+        int _fuel;
+        int _consumption;
+        public Fuel (int fuel, int consumption)
+        {
+            _fuel = fuel;
+            _consumption = consumption;
+        }
+        public void Plus (int delta)
+        {
+            return new Fuel (_fuel + delta, _consumption);
+        }
+        public int GetFuel()
+        {
+            return _fuel;
+        }
+        public int GetConsumption()
+        {
+            return _consumption;
+        }
+    }
+
+    interface IFuelling
+    {
+        public int GetFuel();
+        public Fuel Fill(int credit);
+        public Fuel Burn(int debit);
+        public boolean Check(); 
+    }
+
+    class Fuelling : IFuelling
+    {
+        private Fuel _fuel;
+        public Fuelling(Fuel fuel)
+        {
+            _fuel = fuel;
+        }
+        public int GetFuel()
+        {
+            return _fuel.GetFuel();
+        }
+        public int GetConsumption()
+        {
+            return _fuel.GetConsumption()
+        }
+        public void Fill(int credit)
+        {
+            _fuel.Plus(credit);
+        }
+        public void Burn(int debit)
+        {
+            _fuel.Plus(-1 * debit);
+        }
+        public boolean Check()
+        {
+            return _fuel.GetFuel() - _fuel.GetConsumption() < 0;
+        }
+    }
+
+    class FillFuelCommand : ICommand
+    {
+        private IFuelling _fuel;
+        private int _credit;
+        public FillFuelCommand(IFuelling fuel, int credit)
+        {
+            _fuel = new Fuelling(fuel);
+            _credit = credit;
+        }
+        public void Execute()
+        {
+            _fuel.Fill(_credit);
+        }
+    }
+
+    class BurnFuelCommand : ICommand
+    {
+        private IFuelling _fuel;
+        public BurnFuelCommand(IFuelling fuel)
+        {
+            _fuel = new Fuelling(fuel);
+        }
+        public void Execute()
+        {
+            _fuel.Burn(_fuel.GetConsumption());
+        }
+    }
+
+    class CheckFuelCommand : ICommand
+    {
+        private IFuelling _fuel;
+        public BurnFuelCommand(IFuelling fuel)
+        {
+            _fuel = new Fuelling(fuel);
+        }
+        public void Execute()
+        {
+            if(!_fuel.Check()) throw new CommandException("Empty");
+        }
+    }
+
     interface IRotating
     {
         public Angle GetAngle();
@@ -114,10 +291,33 @@ namespace HomeWorkFour
         public void SetAngle(Angle newValue);
     }
 
-    class Rotate
+    class Rotating : IRotating
+    {
+        private Angle _angle;
+        private int _angularVelocity;
+        public Rotating(Angle angle, int angularVelocity)
+        {
+            _angle = angle;
+            _angularVelocity = angularVelocity;
+        }
+        public Angle GetAngle()
+        {
+            return _angle;
+        }
+        public int GetAngularVelocity()
+        {
+            return _angularVelocity;
+        }
+        public void SetAngle(Angle angle)
+        {
+            _angle = angle;
+        }
+    }
+
+    class RotateCommand : ICommand
     {
         IRotating _rotating;
-        public Rotate(IRotating rotating)
+        public RotateCommand(IRotating rotating)
         {
             _rotating = rotating;
         }
@@ -157,10 +357,10 @@ namespace HomeWorkFour
         public void SetLocation(Vector newValue);
     }
 
-    class Move
+    class MoveCommand : ICommand
     {
         IMoving _moving;
-        public Move(IMoving moving)
+        public MoveCommand(IMoving moving)
         {
             _moving = moving;
         }
@@ -184,31 +384,6 @@ namespace HomeWorkFour
         public void SetLocation(Vector location) { _location = location; }
     }
 
-    class NoLocationException : Exception {}
-    class NoVelocityException : Exception {}
-    class NoMovementException : Exception {}
-
-    class RunTest
-    {
-        void Exec()
-        {
-            Rotate rotate;
-            Move move;
-            // correct
-            rotate = new Rotate (new Rotable (new Angle(0, 16), 3));
-            move = new Move (new Movable(new Vector(12, 5), new Vector(-7, 3)));
-            move.Execute();
-
-            // exceptions
-            move = new Move (new MovableNoLocation(new Vector(12, 5), new Vector(-7, 3)));
-            move.Execute();
-            move = new Move (new MovableNoVelocity(new Vector(12, 5), new Vector(-7, 3)));
-            move.Execute();
-            move = new Move (new MovableCantMove(new Vector(12, 5), new Vector(-7, 3)));
-            move.Execute();
-        }
-    }
-    
 //    interface UObject
 //    {
 //        object this[string key]
