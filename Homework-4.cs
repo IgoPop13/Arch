@@ -333,7 +333,7 @@ namespace HomeWorkFour
     {
         private IFuelling _fuel;
         private int _credit;
-        public FillFuelCommand(IFuelling fuel, int credit)
+        public FillFuelCommand(Fuel fuel, int credit)
         {
             _fuel = new Fuelling(fuel);
             _credit = credit;
@@ -347,7 +347,7 @@ namespace HomeWorkFour
     class BurnFuelCommand : ICommand
     {
         private IFuelling _fuel;
-        public BurnFuelCommand(IFuelling fuel)
+        public BurnFuelCommand(Fuel fuel)
         {
             _fuel = new Fuelling(fuel);
         }
@@ -360,13 +360,13 @@ namespace HomeWorkFour
     class CheckFuelCommand : ICommand
     {
         private IFuelling _fuel;
-        public CheckFuelCommand(IFuelling fuel)
+        public CheckFuelCommand(Fuel fuel)
         {
             _fuel = new Fuelling(fuel);
         }
         public void Execute()
         {
-            if(!_fuel.Check()) throw new CommandException("Empty");
+            if(!_fuel.Check()) throw new CommandException();
         }
     }
 
