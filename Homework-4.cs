@@ -297,7 +297,8 @@ namespace HomeWorkFour
         public int GetFuel();
         public void Fill(int credit);
         public void Burn(int debit);
-        public bool Check(); 
+        public bool Check();
+        public int GetConsumption();
     }
 
     class Fuelling : IFuelling
