@@ -295,8 +295,8 @@ namespace HomeWorkFour
     interface IFuelling
     {
         public int GetFuel();
-        public Fill(int credit);
-        public Burn(int debit);
+        public void Fill(int credit);
+        public void Burn(int debit);
         public bool Check(); 
     }
 
