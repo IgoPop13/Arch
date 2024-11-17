@@ -31,8 +31,14 @@
 // OK (1) Написаны тесты к CheckFuelComamnd - 1 балл
 // OK (2) Реализована команда BurnFuelCommand - 1 балл
 // OK (2) Написаны тесты к BurnFuelComamnd - 1 балл
-// (3) Реализована макрокоманда движения по прямой с расходом топлива и тесты к ней - 1 балл
-// (4) Написаны тесты к MacroComamnd - 1 балл
+// OK (3) Реализована макрокоманда движения по прямой с расходом топлива и тесты к ней - 1 балл
+
+// #########################################################################################
+//                          ОБРАТИТЕ ВНИМАНИЕ НА КОММЕНТАРИЙ НИЖЕ
+// #########################################################################################
+
+// OK (4) Написаны тесты к MacroComamnd - 1 балл - COMMENT: поскольку предыдущая команда использует механизм универсальной макрокоманды
+
 // (5) Реализована команда ChangeVelocityCommand - 1 балл
 // (5) Написаны тесты к ChangeVelocityComamnd - 1 балл
 // (6) Реализована команда поворота, которая еще и меняет вектор мгновенной скорости - 1 балл
@@ -41,6 +47,8 @@
 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace HomeWorkFour
 {
@@ -124,10 +132,85 @@ namespace HomeWorkFour
             throw (new Exception("BurnFuelCommand unsuccess test failed"));
         }
 
+        void RectililearMoveWithFuelConsumptionCommandTest()
+        {
+            RectililearMoveWithFuelConsumptionCommand rectililearMoveWithFuelConsumptionCommand;
+            Moving moving;
+            Fuel fuel;
+
+            // TEST: RectililearMoveWithFuelConsumptionCommand 
+            
+            // correct
+            moving = new Moving(new Vector(0, 0), new Vector(1, 2));
+            fuel = new Fuel(10, 1);
+            rectililearMoveWithFuelConsumptionCommand = new RectililearMoveWithFuelConsumptionCommand (moving, fuel);
+            try
+            {
+                rectililearMoveWithFuelConsumptionCommand.Execute();
+            }
+            catch (CommandException ce)
+            {
+                throw (new Exception("RectililearMoveWithFuelConsumptionCommand success test failed"));
+            }
+            if ((fuel.GetFuel() <> 9) || (moving.GetLocation().X <> 1) || (moving.GetLocation().Y <> 2))
+                throw (new Exception("RectililearMoveWithFuelConsumptionCommand success test failed"));
+            // test passed
+
+            // exception
+            moving = new Moving(new Vector(0, 0), new Vector(1, 2));
+            fuel = new Fuel(1, 1);
+            rectililearMoveWithFuelConsumptionCommand = new RectililearMoveWithFuelConsumptionCommand (moving, fuel);
+            try
+            {
+                rectililearMoveWithFuelConsumptionCommand.Execute();
+            }
+            catch (CommandException ce)
+            {
+                // test passed
+            }
+            // test failed
+            throw (new Exception("RectililearMoveWithFuelConsumptionCommand unsuccess test failed"));
+        }
+
         void ExecTests()
         {
             CheckFuelCommandTest();
             BurnFuelCommandTest();
+        }
+    }
+
+    class RectililearMoveWithFuelConsumptionCommand : ICommand
+    {
+        private MoveCommand moveCommand;
+        private BurnFuelCommand burnFuelCommand;
+        private CheckFuelCommand checkFuelCommand;
+        private MacroCommand macroCommand;
+        public RectililearMoveWithFuelConsumptionCommand(Moving moving, Fuel fuel)
+        {
+            moveCommand = new MoveCommand(moving);
+            checkFuelCommand = new CheckFuelCommand(fuel);
+            burnFuelCommand = new BurnFuelCommand(fuel);
+            macroCommand = new MacroCommand(new List<ICommand> {checkFuelCommand, burnFuelCommand, moveCommand});
+        }
+        void Execute()
+        {
+            macroCommand.Execute();
+        }
+    }
+
+    class MacroCommand : ICommand
+    {
+        private List<ICommand> _commands;
+        public MacroCommand(List<ICommand> commands)
+        {
+            _commands = commands;
+        }
+        public void Execute()
+        {
+            foreach(ICommand command in _commands)
+            {
+                command.Execute();
+            }
         }
     }
 
@@ -164,6 +247,7 @@ namespace HomeWorkFour
             }
         }
     }
+
     class Angle
     {
         int _angle;
