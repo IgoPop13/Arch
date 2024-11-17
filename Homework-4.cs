@@ -113,7 +113,7 @@ namespace HomeWorkFour
             {
                 throw (new Exception("BurnFuelCommand success test failed"));
             }
-            if (fuel.GetFuel() <> 9)
+            if (fuel.GetFuel() != 9)
                 throw (new Exception("BurnFuelCommand success test failed"));
             // test passed
 
