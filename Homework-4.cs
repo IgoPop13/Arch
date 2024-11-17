@@ -194,7 +194,7 @@ namespace HomeWorkFour
             burnFuelCommand = new BurnFuelCommand(fuel);
             macroCommand = new MacroCommand(new List<ICommand> {checkFuelCommand, burnFuelCommand, moveCommand});
         }
-        void Execute()
+        public void Execute()
         {
             macroCommand.Execute();
         }
@@ -297,7 +297,7 @@ namespace HomeWorkFour
         public int GetFuel();
         public Fuel Fill(int credit);
         public Fuel Burn(int debit);
-        public boolean Check(); 
+        public bool Check(); 
     }
 
     class Fuelling : IFuelling
@@ -323,9 +323,9 @@ namespace HomeWorkFour
         {
             _fuel.Plus(-1 * debit);
         }
-        public boolean Check()
+        public bool Check()
         {
-            return _fuel.GetFuel() - _fuel.GetConsumption() < 0;
+            return (_fuel.GetFuel() - _fuel.GetConsumption()) < 0;
         }
     }
 
@@ -410,29 +410,6 @@ namespace HomeWorkFour
         public void  Execute()
         {
             _rotating.SetAngle(_rotating.GetAngle().Plus(_rotating.GetAngularVelocity()));
-        }
-    }
-
-    class Rotating : IRotating
-    {
-        private Angle _angle;
-        private int _angularVelocity;
-        public Rotating(Angle angle, int angularVelocity)
-        {
-            _angle = angle;
-            _angularVelocity = angularVelocity;
-        }
-        public Angle GetAngle()
-        {
-            return _angle;
-        }
-        public int GetAngularVelocity()
-        {
-            return _angularVelocity;
-        }
-        public void SetAngle(Angle angle)
-        {
-            _angle = angle;
         }
     }
 
