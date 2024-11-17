@@ -360,7 +360,7 @@ namespace HomeWorkFour
     class CheckFuelCommand : ICommand
     {
         private IFuelling _fuel;
-        public BurnFuelCommand(IFuelling fuel)
+        public CheckFuelCommand(IFuelling fuel)
         {
             _fuel = new Fuelling(fuel);
         }
