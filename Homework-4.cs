@@ -152,8 +152,10 @@ namespace HomeWorkFour
             {
                 throw (new Exception("RectililearMoveWithFuelConsumptionCommand success test failed"));
             }
-            if ((fuel.GetFuel() <> 9) || (moving.GetLocation().X <> 1) || (moving.GetLocation().Y <> 2))
+            if ((fuel.GetFuel() != 9) || (moving.GetLocation().X != 1) || (moving.GetLocation().Y != 2))
+            {
                 throw (new Exception("RectililearMoveWithFuelConsumptionCommand success test failed"));
+            }
             // test passed
 
             // exception
@@ -311,7 +313,7 @@ namespace HomeWorkFour
         }
         public int GetConsumption()
         {
-            return _fuel.GetConsumption()
+            return _fuel.GetConsumption();
         }
         public void Fill(int credit)
         {
