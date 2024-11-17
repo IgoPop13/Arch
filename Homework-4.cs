@@ -280,7 +280,7 @@ namespace HomeWorkFour
         }
         public void Plus (int delta)
         {
-            return new Fuel (_fuel + delta, _consumption);
+            _fuel += delta;
         }
         public int GetFuel()
         {
