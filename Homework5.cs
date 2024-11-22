@@ -35,16 +35,36 @@ using System.Collections;
 using System.Collections.Generic;
 using HomeWorkFour;
 
+
+// IoC.Resolve<ICommand>("IoC.Register", "Commands.Move", (object[] args) => new MoveCommand((int)args[0],(string)args[1])).Execute();
+// ICommand cmd = IoC.Resolve<ICommand>("Commands.Move", obj);
+
+
 namespace HomeWorkFive
 {
     class IoC
     {
         private static IDictionary<string, obj[]> dependence;
-        public static Resolve<T>(string DependenceName)
+        public static Resolve<T>(object[] args)
         {
-            if (DependenceName == "IoC.Register")
+            object[] depArgs;
+            if (args[0] == "IoC.Register")
             {
-                dependence
+                depArgs = new object[args.length - 2];
+                for(int i = 2; i < args.length; i++)
+                {
+                    depArgs[i - 2] = args[i];
+                }
+                dependence[args[1]] = (depArgs) => {};
+            }
+            else
+            {
+                depArgs = new object[args.length - 1];
+                for(int i = 1; i < args.length; i++)
+                {
+                    depArgs[i - 2] = args[i];
+                }
+                return (T)dependence[args[0]](depArgs);
             }
         }
         static IoC()
@@ -55,11 +75,12 @@ namespace HomeWorkFive
 
     public RegisterDependences
     {
+        // зарегистрировать Scope
+        // зарегистрировать команды, брать параметры из Scope
     }
 
     public InitInctances
     {
-        
     }
     IoC.Resolve<ICommand>("IoC.Register", "Commands.Move", (object[] args) => new MoveCommand((int)args[0],(string)args[1])).Execute();  
 
