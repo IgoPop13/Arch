@@ -21,67 +21,164 @@
 // IoC.Resolve("Scopes.New", "scopeId").Execute();
 // IoC.Resolve("Scopes.Current", "scopeId").Exceute();
 
-// Указание: Если Ваш фреймворк допускает работу с многопоточным кодом, то для работы со скоупами используйте ThreadLocal контейнер.
+// OK Указание: Если Ваш фреймворк допускает работу с многопоточным кодом, то для работы со скоупами используйте ThreadLocal контейнер.
 
 // Критерии оценки:
-// Интерфейс IoC устойчив к изменению требований. Оценка: 0 - 3 балла (0 - совсем не устойчив, 3 - преподаватель не смог построить ни одного контрпримера)
-// IoC предоставляет ровно один метод для всех операций. 1 балл
+// OK Интерфейс IoC устойчив к изменению требований. Оценка: 0 - 3 балла (0 - совсем не устойчив, 3 - преподаватель не смог построить ни одного контрпримера)
+// OK IoC предоставляет ровно один метод для всех операций. 1 балл
 // IoC предоставляет работу со скоупами для предотвращения сильной связности. 2 балла.
 // Реализованы модульные тесты. 2 балла
 // Реализованы многопоточные тесты. 2 балла
 
 using System;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using HomeWorkFour;
-
-
-// IoC.Resolve<ICommand>("IoC.Register", "Commands.Move", (object[] args) => new MoveCommand((int)args[0],(string)args[1])).Execute();
-// ICommand cmd = IoC.Resolve<ICommand>("Commands.Move", obj);
-
 
 namespace HomeWorkFive
 {
+    public interface IDependencyResolver
+    {
+        public object Resolve(string dependency, object[] args);
+    }
+
+    public class DependencyResolver : IDependencyResolver
+    {
+        IDictionary<string, Func<object[], object>> _dependencies;
+
+        public DependencyResolver(object scope)
+        {
+            _dependencies = (IDictionary<string, Func<object[], object>>) scope;
+        }
+
+        public object Resolve(string dependency, object[] args)
+        {
+            var dependencies = _dependencies;
+
+            Func<object[], object>? dependencyResolverStrategy = null;
+            if (dependencies.TryGetValue(dependency, out dependencyResolverStrategy))
+            {
+                return dependencyResolverStrategy(args);
+            }
+        }
+    }
+
+    class InitCommand : ICommand
+    {
+        internal static ThreadLocal<object> currentScope = new ThreadLocal<object>(true);
+
+        static ConcurrentDictionary<string, Func<object[], object>> rootScope = new ConcurrentDictionary<string, Func<object[], object>>();
+        
+        public InitCommand ()
+        {
+        }
+        
+        public void Execute()
+        {
+            lock (rootScope)
+            {
+                rootScope.TryAdd("IoC.Scope.Current.Set", (object[] args) => new SetCurrentScopeCommand(args[0]));
+                rootScope.TryAdd("IoC.Scope.Current", (object[] args) => currentScope.Value != null ? currentScope.Value! : rootScope);
+                rootScope.TryAdd("IoC.Scope.Create.Empty", (object[] args) => new Dictionary<string, Func<object[], object>>());
+
+                rootScope.TryAdd("IoC.Scope.Create", (object[] args) =>
+                    {
+                        return creatingScope = Ioc.Resolve<IDictionary<string, Func<object[], object>>>("IoC.Scope.Create.Empty");
+                    }
+                );
+
+                rootScope.TryAdd("IoC.Register", (object[] args) => new RegisterDependencyCommand((string)args[0], (Func<object[], object>)args[1]));
+
+                Ioc.Resolve<ICommand>(
+                    "IoC.ChangeDependencyResolveStrategy",
+                    (Func<string, object[], object> oldStrategy) =>
+                        (string dependency, object[] args) =>
+                        {
+                            var scope = currentScope.Value != null ? currentScope.Value! : rootScope;
+                            var dependencyResolver = new DependencyResolver(scope);
+
+                            return dependencyResolver.Resolve(dependency, args);
+                        }
+                ).Execute();
+
+            }
+        }
+    }
+
+    public class SetCurrentScopeCommand : ICommand
+    {
+        object _scope;
+
+        public SetCurrentScopeCommand(object scope)
+        {
+            _scope = scope;
+        }
+
+        public void Execute()
+        {
+            InitCommand.currentScope.Value = _scope;
+        }
+    }
+
+    public class RegisterDependencyCommand : ICommand
+    {
+        string _dependency;
+        Func<object[], object> _dependencyResolverStratgey;
+
+        public RegisterDependencyCommand(string dependency, Func<object[], object> depednecyResolverStrategy)
+        {
+            _dependency = dependency;
+            _dependencyResolverStratgey = depednecyResolverStrategy;
+        }
+
+        public void Execute()
+        {
+            var currentScope = Ioc.Resolve<IDictionary<string, Func<object[], object>>>("IoC.Scope.Current");
+            currentScope.Add(_dependency, _dependencyResolverStratgey);
+        }
+    }
+
     class IoC
     {
-        private static IDictionary<string, obj[]> dependence;
-        public static Resolve<T>(object[] args)
+        public const string RegisterKey = "IoC.Register";
+
+        private static ConcurrentDictionary<string, Func<object[], object>> scope;
+
+        public static Т Resolve<T>(string dependency, params object[] args)
         {
-            object[] depArgs;
-            if (args[0] == "IoC.Register")
+            if (dependency == RegisterKey)
             {
-                depArgs = new object[args.length - 2];
-                for(int i = 2; i < args.length; i++)
-                {
-                    depArgs[i - 2] = args[i];
-                }
-                dependence[args[1]] = (depArgs) => {};
+                scope.TryAdd(args);
             }
             else
             {
-                depArgs = new object[args.length - 1];
-                for(int i = 1; i < args.length; i++)
-                {
-                    depArgs[i - 2] = args[i];
-                }
-                return (T)dependence[args[0]](depArgs);
+                return (T)scope.Item[dependency];
             }
         }
         static IoC()
         {
-            dependence = new IDictionary<string, obj[]>();
+            currentScopes = new ThreadLocal<object>(true);
+            scope = new ConcurrentDictionary<string, Func<object[], object>>();
+            scope.TryAdd(RegisterKey, object[] args => new )
         }
     }
 
+    // вынести в отдельный плагин, в котором прописать доступные объекты
     public RegisterDependences
     {
-        // зарегистрировать Scope
+        // зарегистрировать scope (посмотреть следующую лекцию)
+        
+
+        IoC.Resolve<ICommand>(IoC.RegisterKey, "Vector", (object[] args) => new Vector((int)args[0], (int)args[1])).Execute();
+        IoC.Resolve<ICommand>(IoC.RegisterKey, "Commands.Move", (object[] args) => new MoveCommand((Vector)args[0], (Vector)args[1])).Execute();
         // зарегистрировать команды, брать параметры из Scope
     }
 
-    public InitInctances
+    // вынести в отдельный модуль или организовать получение данных с клиента для инициализации игровых объектов
+    public InitInstances
     {
+        MoveCommand moveCommand = IoC.Resolve("Commands.Move", IoC.Resolve<Vector>("Vector", 0, 0), IoC.Resolve<Vector>("Vector", (1, 2)));
     }
-    IoC.Resolve<ICommand>("IoC.Register", "Commands.Move", (object[] args) => new MoveCommand((int)args[0],(string)args[1])).Execute();  
-
 }
