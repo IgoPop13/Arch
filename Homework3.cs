@@ -106,10 +106,14 @@ namespace HomeWorkThree
             return store[ct][et](c, e);
         }
 
-        private static IDictionary <Type, IDictionary <Type, Func<ICommand, Exception, ICommand>>> store = new IDictionary <Type, IDictionary <Type, Func<ICommand, Exception, ICommand>>>();
+        private static IDictionary <Type, IDictionary <Type, Func<ICommand, Exception, ICommand>>> store;
 
         public static void RegisterHandler(Type ct, Type et, Func<ICommand, Exception, ICommand> h)
         {
+            if store == null
+            {
+                store = new IDictionary <Type, IDictionary <Type, Func<ICommand, Exception, ICommand>>>();
+            }
             store[ct][et] = h;
         }
     }
