@@ -98,7 +98,7 @@ namespace HomeWorkThree
 // POINT 3
     static class ExceptionHandler
     {
-        public static ExceptionHandler()
+        static ExceptionHandler()
         {
             store = new IDictionary <Type, IDictionary <Type, Func<ICommand, Exception, ICommand>>>();
         }
