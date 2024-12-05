@@ -131,7 +131,7 @@ namespace HomeWorkFive
         }
     }
 
-    private class UpdateIocResolveDependencyStrategyCommand : ICommand
+    public class UpdateIocResolveDependencyStrategyCommand : ICommand
     {
         Func<Func<string, object[], object>, Func<string, object[], object>> _updateIoCStrategy;
 
