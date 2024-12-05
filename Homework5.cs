@@ -208,7 +208,7 @@ namespace HomeWorkFive
         public void Execute()
         {
             new RegisterGameDependenciesCommand().Execute();
-            new InitGameInstancesCommand().Execuyte();
+            new InitGameInstancesCommand().Execute();
         }
     }
 
@@ -217,13 +217,13 @@ namespace HomeWorkFive
         [Fact]
         public void IoCThrowsArgumentExceptionForUnknownDependency()
         {
-            Assert.Throws<ArgumentException>(() => Ioc.Resolve<object>("UnknownDependency"));
+            Assert.Throws<ArgumentException>(() => IoC.Resolve<object>("UnknownDependency"));
         }
 
         [Fact]
         public void IoCThrowsInvalidCastExceptionForDependencyWrongType()
         {
-            Assert.Throws<InvalidCastException>(() => Ioc.Resolve<string>("IoC.ChangeDependencyResolveStrategy", (Func<string, object[], object> args) => args));
+            Assert.Throws<InvalidCastException>(() => IoC.Resolve<string>("IoC.ChangeDependencyResolveStrategy", (Func<string, object[], object> args) => args));
         }
 
         [Fact]
@@ -231,7 +231,7 @@ namespace HomeWorkFive
         {
             bool dependencyResolvedSuccessfully = false;
 
-            Ioc.Resolve<ICommand>(
+            IoC.Resolve<ICommand>(
                 "IoC.ChangeDependencyResolveStrategy",
                 (Func<string, object[], object> args) =>
                 {
