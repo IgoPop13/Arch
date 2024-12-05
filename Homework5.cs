@@ -30,8 +30,8 @@
 // OK Реализованы модульные тесты. 2 балла
 // Реализованы многопоточные тесты. 2 балла
 
-global using Xunit;
 using System;
+using Xunit;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
