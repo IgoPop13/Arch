@@ -31,7 +31,7 @@
 // Реализованы многопоточные тесты. 2 балла
 
 using System;
-using Xunit;
+global using Xunit;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
