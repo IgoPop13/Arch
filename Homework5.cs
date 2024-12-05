@@ -31,12 +31,12 @@
 // Реализованы многопоточные тесты. 2 балла
 
 using System;
+using Xunit;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using HomeWorkFour;
-using Xunit;
 
 namespace HomeWorkFive
 {
