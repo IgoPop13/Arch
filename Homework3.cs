@@ -110,7 +110,7 @@ namespace HomeWorkThree
 
         public static void RegisterHandler(Type ct, Type et, Func<ICommand, Exception, ICommand> h)
         {
-            if store == null
+            if (store == null)
             {
                 store = new IDictionary <Type, IDictionary <Type, Func<ICommand, Exception, ICommand>>>();
             }
