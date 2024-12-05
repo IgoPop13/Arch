@@ -36,6 +36,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using HomeWorkFour;
+using Xunit;
 
 namespace HomeWorkFive
 {
@@ -208,6 +209,38 @@ namespace HomeWorkFive
         {
             new RegisterGameDependenciesCommand().Execute();
             new InitGameInstancesCommand().Execuyte();
+        }
+    }
+
+    public class UTests
+    {
+        [Fact]
+        public void IoCThrowsArgumentExceptionForUnknownDependency()
+        {
+            Assert.Throws<ArgumentException>(() => Ioc.Resolve<object>("UnknownDependency"));
+        }
+
+        [Fact]
+        public void IoCThrowsInvalidCastExceptionForDependencyWrongType()
+        {
+            Assert.Throws<InvalidCastException>(() => Ioc.Resolve<string>("IoC.ChangeDependencyResolveStrategy", (Func<string, object[], object> args) => args));
+        }
+
+        [Fact]
+        public void IoCUpdatesResolveDependencyStrategy()
+        {
+            bool dependencyResolvedSuccessfully = false;
+
+            Ioc.Resolve<ICommand>(
+                "IoC.ChangeDependencyResolveStrategy",
+                (Func<string, object[], object> args) =>
+                {
+                    dependencyResolvedSuccessfully = true;
+                    return args;
+                }
+            ).Execute();
+
+            Assert.True(dependencyResolvedSuccessfully);
         }
     }
 }
