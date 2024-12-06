@@ -183,7 +183,8 @@ namespace HomeWorkFive
             (new InitCommand()).Execute();
 
             IoC.Resolve<ICommand>("IoC.Register", "Vector", (object[] args) => new Vector((int)args[0], (int)args[1])).Execute();
-            IoC.Resolve<ICommand>("IoC.Register", "Commands.Move", (object[] args) => new MoveCommand((Vector)args[0], (Vector)args[1])).Execute();
+            IoC.Resolve<ICommand>("IoC.Register", "Moving", (object[] args) => new Moving((Vector)args[0], (Vector)args[1])).Execute();
+            IoC.Resolve<ICommand>("IoC.Register", "Commands.Move", (object[] args) => new MoveCommand((Moving)args[0])).Execute();
             // зарегистрировать команды, брать параметры из Scope
         }
     }
@@ -196,7 +197,7 @@ namespace HomeWorkFive
         }
         public void Execute()
         {
-            MoveCommand moveCommand = IoC.Resolve("Commands.Move", IoC.Resolve<Vector>("Vector", 0, 0), IoC.Resolve<Vector>("Vector", (1, 2)));
+            MoveCommand moveCommand = IoC.Resolve<MoveCommand>("Commands.Move", IoC.Resolve<Moving>("Moving", IoC.Resolve<Vector>("Vector", 0, 0), IoC.Resolve<Vector>("Vector", (1, 2))));
         }
     }
 
