@@ -109,10 +109,28 @@ namespace HomeWorkSix
     {
         // предполагается, что зависимости именуются в IoC-контейнере так: Interface.Abstraction.Action
         //                                                       например: IMoving.Velocity.Get
-        public static string Create(Type T, string AdapterFor, string Abstraction, string Action) 
+        /*
+            obj.GetType() - информация о типе
+            obj.GetType().GetInterfaces() - список интерфейсов, интерфейсы - тоже типы
+            obj.GetType().GetInterfaces[].GetMethods() - список методов
+            - список параметров
+        */
+        public static string CreateObject(Type type)
         {
-            //string type = 
-            return($"IoC.Resolve<{T}>(\"{AdapterFor}.{Abstraction}.{Action}\", _map)");
+            // получить список интерфейсов, унаследованных данным типом
+            Type[] interfaces = type.GetInterfaces();
+            // для каждого интерфейса получить список методов
+            foreach(Type interface)
+            {
+
+            }
+
+            // получить список методов самого типа
+        }
+
+        public static string BuildMethod(string interfaceName, string typeName, string propertyName, string action) 
+        {
+            return $"public {typeName} {action}{propertyName}() { return IoC.Resolve<{{typeName}}>(""{interfaceName}.{propertyName}.{action}"", _map); }";
         }
     }
 
@@ -126,9 +144,9 @@ namespace HomeWorkSix
         {
             (new InitCommand()).Execute();
 
-            IoC.Resolve<Vector>("IoC.Register", "Sequencies.Interfaces", ["IMoving", "IRotating"]).Execute();
-            IoC.Resolve<Vector>("IoC.Register", "Sequencies.Abstractions", ["Velocity", "Location"]).Execute();
-            IoC.Resolve<Vector>("IoC.Register", "Sequencies.Actions", ["Get", "Set"]).Execute();
+//            IoC.Resolve<Vector>("IoC.Register", "Sequencies.Interfaces", ["IMoving", "IRotating"]).Execute();
+//            IoC.Resolve<Vector>("IoC.Register", "Sequencies.Abstractions", ["Velocity", "Location"]).Execute();
+//            IoC.Resolve<Vector>("IoC.Register", "Sequencies.Actions", ["Get", "Set"]).Execute();
 
             IoC.Resolve<Vector>("IoC.Register", "IMoving.Location.Get", (object[] args) => {
                 return (Vector)args[0]["Location"];
