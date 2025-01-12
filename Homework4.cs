@@ -267,6 +267,10 @@ namespace HomeWorkFour
         {
             return _angle;
         }
+        public double ToDouble()
+        {
+            return _angle / _n;
+        }
     }
 
     class Fuel
