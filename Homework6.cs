@@ -115,12 +115,12 @@ namespace HomeWorkSix
                 methodsCode.Append(BuildProperty(type.Name, method.ReturnType.Name, method.Name, method.GetParameters()));
             }
 
-            return $"class {type.Name}Adapter : {type.Name}
-                \{
-                    private IDictionary<string, object> _map\;
-                    public {type.Name}Adapter (IDictionary<string, object> map) \{ _map = map; \}
-                    {methodsCode}
-                \}";
+            return $"class {type.Name}Adapter : {type.Name}" + 
+                $"\{" +
+                    $"private IDictionary<string, object> _map\;" +
+                    $"public {type.Name}Adapter (IDictionary<string, object> map) \{ _map = map; \}"+
+                    $"{methodsCode}" +
+                $"\}";
         }
 
         public static string BuildProperty(string interfaceName, string typeName, string propertyName, ParameterInfo[] params)
