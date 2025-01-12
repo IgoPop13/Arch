@@ -79,6 +79,7 @@ using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Text;
 using HomeWorkFour;
 using HomeWorkFive;
 
@@ -115,22 +116,49 @@ namespace HomeWorkSix
             obj.GetType().GetInterfaces[].GetMethods() - список методов
             - список параметров
         */
-        public static string CreateObject(Type type)
+        public static string BuildClass(Type type)
         {
-            // получить список интерфейсов, унаследованных данным типом
-            Type[] interfaces = type.GetInterfaces();
-            // для каждого интерфейса получить список методов
+            // получить список методов
+            System.Reflection.MethodInfo[] methods = type.GetMethods();
+
+            StringBuilder methodsCode = new StringBuilder("");
+
+            foreach(MethodInfo method in methods)
+            {
+                methodsCode.Append(BuildMethod(type.Name, method.ReturnType.Name, method.Name));
+            }
+
+            string classCode = "";
+/*
+$"    class {args[0]}Adapter : {args[0]}
+    {
+        private IDictionary<string, object> _map;
+        public MovingAdapter (IDictionary<string, object> map) { _map = map; }
+
+        public Vector GetLocation()
+        {
+            return IoC.Resolve<Vector>("IMoving.Location.Get", _map);
+        }
+        public Vector GetVelocity()
+        {
+            return IoC.Resolve<Vector>("IMoving.Velocity.Get", _map);
+        }
+        public void SetLocation(Vector newValue)
+        {
+            IoC.Resolve<ICommand>("IMoving.Location.Set", _map, newValue).Execute();
+        }
+    }
+"
+*/
             foreach(Type interface)
             {
 
             }
-
-            // получить список методов самого типа
         }
 
-        public static string BuildMethod(string interfaceName, string typeName, string propertyName, string action) 
+        public static string BuildMethod(string interfaceName, string typeName, string propertyName)
         {
-            return $"public {typeName} {action}{propertyName}() { return IoC.Resolve<{{typeName}}>(""{interfaceName}.{propertyName}.{action}"", _map); }";
+            return $"public {typeName} {propertyName}() { return IoC.Resolve<{{typeName}}>(""{interfaceName}.{propertyName}"", _map); }";
         }
     }
 
@@ -144,19 +172,15 @@ namespace HomeWorkSix
         {
             (new InitCommand()).Execute();
 
-//            IoC.Resolve<Vector>("IoC.Register", "Sequencies.Interfaces", ["IMoving", "IRotating"]).Execute();
-//            IoC.Resolve<Vector>("IoC.Register", "Sequencies.Abstractions", ["Velocity", "Location"]).Execute();
-//            IoC.Resolve<Vector>("IoC.Register", "Sequencies.Actions", ["Get", "Set"]).Execute();
-
-            IoC.Resolve<Vector>("IoC.Register", "IMoving.Location.Get", (object[] args) => {
+            IoC.Resolve<ICommand>("IoC.Register", "IMoving.GetLocation", (object[] args) => {
                 return (Vector)args[0]["Location"];
             }).Execute();
 
-            IoC.Resolve<ICommand>("IoC.Register", "IMoving.Location.Set", (object[] args) => {
+            IoC.Resolve<ICommand>("IoC.Register", "IMoving.SetLocation", (object[] args) => {
                 args[0]["Location"] = args[1];
             }).Execute();
 
-            IoC.Resolve<ICommand>("IoC.Register", "IMoving.Velocity.Get", (object[] args) => {
+            IoC.Resolve<ICommand>("IoC.Register", "IMoving.GetVelocity", (object[] args) => {
                 Angle angle = (Angle)args[0]["Angle"];
                 int velocity = (int)args[0]["Velocity"];
                 return new Vector(
@@ -164,17 +188,23 @@ namespace HomeWorkSix
                     velocity * Math.Sin(angle.ToDouble())
                 );
             }).Execute();
+
+            IoC.Resolve("IoC.Register", "Adapter", (object[] args) => {
+                return CodeComposer.BuildClass();
+            }).Execute();
         }
     }
 
     public class Game : ICommand
     {
+        private IDictionary<string, object> _map = new IDictionary<string, object>;
         public Game()
         {
         }
         public void Execute()
         {
             new RegisterGameDependenciesCommand().Execute();
+            var adapter = CodeGenerator.ExecuteCode<IMoving>(IoC.Resolve("Adapter", typeof(IMoving), _map));
         }
     }
 
