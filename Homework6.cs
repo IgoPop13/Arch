@@ -184,9 +184,10 @@ namespace HomeWorkSix
 
     public class Game : ICommand
     {
-        private IDictionary<string, object> _map = new IDictionary<string, object>();
+        private IDictionary<string, object> _map;
         public Game()
         {
+            _map = new System.Collections.Generic.Dictionary<string, object>;
         }
         public void Execute()
         {
