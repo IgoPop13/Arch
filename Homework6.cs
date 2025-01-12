@@ -7,10 +7,6 @@
 В рамках данного ДЗ Вы научитесь генерировать адаптеры для интерфейсов, полученных при применении принципа DIP.
 ДЗ демонстрирует применение метапрограммирования для решения рутинных задач, а также возможности Reflection и компиляции "на лету" современных языков программирования.
 
-Если задание выполняется на C++, то задание заключается в написании препроцессора, который ищет абстрактные классы и по ним генерирует код адаптера, который включается в состав проекта. Для удобства такой препроцессор стоит запускать на этапе, предшествующем компиляции в процессе сборки, а также стоит подумать об удалении всех
-сгенерированных файлов при выполнении команды clear.
-
-
 Описание/Пошаговая инструкция выполнения домашнего задания:
 Предположим, что у нас есть интерфейс
 interface Spaceship.Operations.IMovable
@@ -62,15 +58,12 @@ interface Spaceship.Operations.IMovable
 
 Критерии оценки:
 
-Задание сдано на проверку - 1 балл
-Реализован генератор адаптеров - 3 балла
+OK Задание сдано на проверку - 1 балл
+OK Реализован генератор адаптеров - 3 балла
 Реализованы тесты на генератор адаптеров - 2 балл
-Определена стратегия для IoC из п. 2 задания - 2 балла
-Обработан случай из п. 3 задания - 2 балла
+OK Определена стратегия для IoC из п. 2 задания - 2 балла
+OK Обработан случай из п. 3 задания - 2 балла
 
------------------------------------------------------------------
-- надо использовать рефлексию, анализировать свойства и методы интерфейса
-- искать RuntimeCodeGeneration 
 */
 
 using System;
@@ -85,6 +78,7 @@ using HomeWorkFive;
 
 namespace HomeWorkSix
 {
+    /*
     class MovingAdapter : IMoving
     {
         private IDictionary<string, object> _map;
@@ -105,17 +99,10 @@ namespace HomeWorkSix
             IoC.Resolve<ICommand>("IMoving.Location.Set", _map, newValue).Execute();
         }
     }
+    */
 
     class CodeComposer
     {
-        // предполагается, что зависимости именуются в IoC-контейнере так: Interface.Abstraction.Action
-        //                                                       например: IMoving.Velocity.Get
-        /*
-            obj.GetType() - информация о типе
-            obj.GetType().GetInterfaces() - список интерфейсов, интерфейсы - тоже типы
-            obj.GetType().GetInterfaces[].GetMethods() - список методов
-            - список параметров
-        */
         public static string BuildClass(Type type)
         {
             // получить список методов
@@ -125,40 +112,39 @@ namespace HomeWorkSix
 
             foreach(MethodInfo method in methods)
             {
-                methodsCode.Append(BuildMethod(type.Name, method.ReturnType.Name, method.Name));
+                methodsCode.Append(BuildProperty(type.Name, method.ReturnType.Name, method.Name, method.GetParameters()));
             }
 
-            string classCode = "";
-/*
-$"    class {args[0]}Adapter : {args[0]}
-    {
-        private IDictionary<string, object> _map;
-        public MovingAdapter (IDictionary<string, object> map) { _map = map; }
+            return $"class {type.Name}Adapter : {type.Name}
+                \{
+                    private IDictionary<string, object> _map\;
+                    public {type.Name}Adapter (IDictionary<string, object> map) \{ _map = map; \}
+                    {methodsCode}
+                \}";
+        }
 
-        public Vector GetLocation()
+        public static string BuildProperty(string interfaceName, string typeName, string propertyName, ParameterInfo[] params)
         {
-            return IoC.Resolve<Vector>("IMoving.Location.Get", _map);
-        }
-        public Vector GetVelocity()
-        {
-            return IoC.Resolve<Vector>("IMoving.Velocity.Get", _map);
-        }
-        public void SetLocation(Vector newValue)
-        {
-            IoC.Resolve<ICommand>("IMoving.Location.Set", _map, newValue).Execute();
-        }
-    }
-"
-*/
-            foreach(Type interface)
+            // OK сконструировать строку перечисления параметров с типами
+            // OK сконструировать строку перечисления параметров без типов
+            StringBuilder paramsStr = new StringBuilder("");
+            StringBuilder paramsTypedStr = new StringBuilder("");
+            foreach (ParameterInfo param in params)
             {
+                paramsStr.Append(", ");
+                paramsStr.Append(param.Name);
 
+                if (paramsTypedStr.Length != 0)
+                {
+                    paramsTypedStr.Append(", ");
+                }
+                paramsTypedStr.Append(param.ParameterType.Name);
+                paramsTypedStr.Append(" ");
+                paramsTypedStr.Append(param.Name);
             }
-        }
-
-        public static string BuildMethod(string interfaceName, string typeName, string propertyName)
-        {
-            return $"public {typeName} {propertyName}() { return IoC.Resolve<{{typeName}}>(""{interfaceName}.{propertyName}"", _map); }";
+            // OK сделать добавление Execute для типа void
+            // OK сделать добавление списков пераметров (с типами и без оных)
+            return $"public {typeName} {propertyName}({paramsTypedStr}) \{ return IoC.Resolve<{typeName}>(\"{interfaceName}.{propertyName}\", _map{paramsStr}){typeName == "void" ? ".Execute()"}; }";
         }
     }
 
