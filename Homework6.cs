@@ -73,6 +73,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Reflection;
 using HomeWorkFour;
 using HomeWorkFive;
 
@@ -116,11 +117,11 @@ namespace HomeWorkSix
             }
 
             return $"class {type.Name}Adapter : {type.Name}" + 
-                $"\{" +
-                    $"private IDictionary<string, object> _map\;" +
-                    $"public {type.Name}Adapter (IDictionary<string, object> map) \{ _map = map; \}"+
+                $"{{" +
+                    $"private IDictionary<string, object> _map;" +
+                    $"public {type.Name}Adapter (IDictionary<string, object> map) {{ _map = map; }}"+
                     $"{methodsCode}" +
-                $"\}";
+                $"}}";
         }
 
         public static string BuildProperty(string interfaceName, string typeName, string propertyName, ParameterInfo[] params)
