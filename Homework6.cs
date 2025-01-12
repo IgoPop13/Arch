@@ -145,7 +145,7 @@ namespace HomeWorkSix
             }
             // OK сделать добавление Execute для типа void
             // OK сделать добавление списков пераметров (с типами и без оных)
-            return $"public {typeName} {propertyName}({paramsTypedStr}) {{ return IoC.Resolve<{typeName}>(\"{interfaceName}.{propertyName}\", _map{paramsStr}){typeName == "void" ? ".Execute()"}; }}";
+            return $"public {typeName} {propertyName}({paramsTypedStr}) {{ return IoC.Resolve<{typeName}>(\"{interfaceName}.{propertyName}\", _map{paramsStr}){typeName == "void" ? ".Execute()" : ""}; }}";
         }
     }
 
