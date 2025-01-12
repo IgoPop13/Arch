@@ -124,13 +124,13 @@ namespace HomeWorkSix
                 $"}}";
         }
 
-        public static string BuildProperty(string interfaceName, string typeName, string propertyName, ParameterInfo[] params)
+        public static string BuildProperty(string interfaceName, string typeName, string propertyName, ParameterInfo[] parameters)
         {
             // OK сконструировать строку перечисления параметров с типами
             // OK сконструировать строку перечисления параметров без типов
             StringBuilder paramsStr = new StringBuilder("");
             StringBuilder paramsTypedStr = new StringBuilder("");
-            foreach (ParameterInfo param in params)
+            foreach (ParameterInfo param in parameters)
             {
                 paramsStr.Append(", ");
                 paramsStr.Append(param.Name);
@@ -145,7 +145,7 @@ namespace HomeWorkSix
             }
             // OK сделать добавление Execute для типа void
             // OK сделать добавление списков пераметров (с типами и без оных)
-            return $"public {typeName} {propertyName}({paramsTypedStr}) \{ return IoC.Resolve<{typeName}>(\"{interfaceName}.{propertyName}\", _map{paramsStr}){typeName == "void" ? ".Execute()"}; }";
+            return $"public {typeName} {propertyName}({paramsTypedStr}) {{ return IoC.Resolve<{typeName}>(\"{interfaceName}.{propertyName}\", _map{paramsStr}){typeName == "void" ? ".Execute()"}; }}";
         }
     }
 
@@ -184,7 +184,7 @@ namespace HomeWorkSix
 
     public class Game : ICommand
     {
-        private IDictionary<string, object> _map = new IDictionary<string, object>;
+        private IDictionary<string, object> _map = new IDictionary<string, object>();
         public Game()
         {
         }
