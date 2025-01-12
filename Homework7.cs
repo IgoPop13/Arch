@@ -17,13 +17,11 @@
 
 Последовательность шагов решения:
 
-Реализовать код, который запускается в отдельном потоке и делает следующее
-В цикле получает из потокобезопасной очереди команду и запускает ее.
-Выброс исключения из команды не должен прерывать выполнение потока.
-Написать команду, которая стартует код, написанный в пункте 1 в отдельном потоке.
-Написать команду, которая останавливает цикл выполнения команд из пункта 1, не дожидаясь их полного завершения (hard stop).
-Написать команду, которая останавливает цикл выполнения команд из пункта 1, только после того, как все команды завершат свою работу (soft stop).
-Написать тесты на команду запуска и остановки потока.
+OK 1. Реализовать код, который запускается в отдельном потоке и делает следующее: В цикле получает из потокобезопасной очереди команду и запускает ее. Выброс исключения из команды не должен прерывать выполнение потока.
+2. Написать команду, которая стартует код, написанный в пункте 1 в отдельном потоке.
+3. Написать команду, которая останавливает цикл выполнения команд из пункта 1, не дожидаясь их полного завершения (hard stop).
+4. Написать команду, которая останавливает цикл выполнения команд из пункта 1, только после того, как все команды завершат свою работу (soft stop).
+5. Написать тесты на команду запуска и остановки потока.
 
 Критерии оценки:
 За выполнение каждого пункта, перечисленного ниже начисляются баллы:
@@ -51,16 +49,37 @@ using HomeWorkThree;
 
 namespace HomeWorkSeven
 {
-    class RunThread
+    class RunGame
     {
-        BlockingCollection<ICommand> q = new BlockingCollection<ICommand>();
-        GameThread gt = new GameThread(q);
-        gt.Start();
+        BlockingCollection<GameThread> _gameThreadCollection;
+        
+        public RunGame()
+        {
+            _gameThreadCollection = new BlockingCollection<GameThread>();
+        }
+
+        public void AddThread()
+        {
+            BlockingCollection<ICommand> q = new BlockingCollection<ICommand>();
+            GameThread gt = new GameThread(q);
+            _gameThreadCollection.Add();
+            RunNewThreadCommand runNewThreadCommand = new RunNewThreadCommand(gt);
+            runNewThreadCommand.Execute();
+        }
     }
 
-    interface IReciever
+    class RunNewThreadCommand : ICommand
     {
-        ICommand Recieve();
+        GameThread _gt;
+
+        public RunNewThread(GameThread gt)
+        {
+            _gt = gt;
+        }
+        public void Execute()
+        {
+            _gt.Start();
+        }
     }
 
     class GameThread
@@ -92,7 +111,14 @@ namespace HomeWorkSeven
                     while (!stop)
                     {
                         cmd = q.Take();
-                        cmd.Execute();
+                        try
+                        {
+                            cmd.Execute();
+                        }
+                        catch (Exception e)
+                        {
+                            IoC.Resolve<ICommand>("HANDLER", cmd, e).Execute; // прописать обработчик исключения в IoC.
+                        }
                     }
                 }
             );
