@@ -168,12 +168,7 @@ namespace HomeWorkSix
             }).Execute();
 
             IoC.Resolve<ICommand>("IoC.Register", "IMoving.GetVelocity", (object[] args) => {
-                Angle angle = (Angle)(((IDictionary)args[0])["Angle"]);
-                int velocity = (int)(((IDictionary)args[0])["Velocity"]);
-                return new Vector(
-                    velocity * Math.Cos(angle.ToDouble()),
-                    velocity * Math.Sin(angle.ToDouble())
-                );
+                return (Vector)(((IDictionary)args[0])["Velocity"]);
             }).Execute();
 
             IoC.Resolve("IoC.Register", "Adapter", (object[] args) => {
