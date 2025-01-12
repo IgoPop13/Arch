@@ -160,16 +160,16 @@ namespace HomeWorkSix
             (new InitCommand()).Execute();
 
             IoC.Resolve<ICommand>("IoC.Register", "IMoving.GetLocation", (object[] args) => {
-                return (Vector)(((IDictionnary)args[0])["Location"]);
+                return (Vector)(((IDictionary)args[0])["Location"]);
             }).Execute();
 
             IoC.Resolve<ICommand>("IoC.Register", "IMoving.SetLocation", (object[] args) => {
-                (((IDictionnary)args[0])["Location"]) = args[1];
+                (((IDictionary)args[0])["Location"]) = args[1];
             }).Execute();
 
             IoC.Resolve<ICommand>("IoC.Register", "IMoving.GetVelocity", (object[] args) => {
-                Angle angle = (Angle)args[0]["Angle"];
-                int velocity = (int)args[0]["Velocity"];
+                Angle angle = (Angle)(((IDictionary)args[0])["Angle"]);
+                int velocity = (int)(((IDictionary)args[0])["Velocity"]);
                 return new Vector(
                     velocity * Math.Cos(angle.ToDouble()),
                     velocity * Math.Sin(angle.ToDouble())
