@@ -177,7 +177,7 @@ namespace HomeWorkSix
             }).Execute();
 
             IoC.Resolve("IoC.Register", "Adapter", (object[] args) => {
-                return CodeComposer.BuildClass();
+                return CodeComposer.BuildClass(args[0]);
             }).Execute();
         }
     }
@@ -187,12 +187,13 @@ namespace HomeWorkSix
         private IDictionary<string, object> _map;
         public Game()
         {
-            _map = new System.Collections.Generic.Dictionary<string, object>;
+            _map = new System.Collections.Generic.Dictionary<string, object>();
         }
         public void Execute()
         {
             new RegisterGameDependenciesCommand().Execute();
-            var adapter = CodeGenerator.ExecuteCode<IMoving>(IoC.Resolve("Adapter", typeof(IMoving), _map));
+            string IMovingClassCode = IoC.Resolve("Adapter", typeof(IMoving));
+            // скомпилировать полученную строку, создать экземпляр класса из скомпилированной строки, передав в конструктор _map
         }
     }
 
