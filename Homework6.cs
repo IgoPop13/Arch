@@ -160,11 +160,11 @@ namespace HomeWorkSix
             (new InitCommand()).Execute();
 
             IoC.Resolve<ICommand>("IoC.Register", "IMoving.GetLocation", (object[] args) => {
-                return (Vector)args[0]["Location"];
+                return (Vector)(((IDictionnary)args[0])["Location"]);
             }).Execute();
 
             IoC.Resolve<ICommand>("IoC.Register", "IMoving.SetLocation", (object[] args) => {
-                args[0]["Location"] = args[1];
+                (((IDictionnary)args[0])["Location"]) = args[1];
             }).Execute();
 
             IoC.Resolve<ICommand>("IoC.Register", "IMoving.GetVelocity", (object[] args) => {
@@ -177,7 +177,7 @@ namespace HomeWorkSix
             }).Execute();
 
             IoC.Resolve("IoC.Register", "Adapter", (object[] args) => {
-                return CodeComposer.BuildClass(args[0]);
+                return CodeComposer.BuildClass((Type)args[0]);
             }).Execute();
         }
     }
