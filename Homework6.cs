@@ -171,7 +171,7 @@ namespace HomeWorkSix
                 return (Vector)(((IDictionary)args[0])["Velocity"]);
             }).Execute();
 
-            IoC.Resolve("IoC.Register", "Adapter", (object[] args) => {
+            IoC.Resolve<string>("IoC.Register", "Adapter", (object[] args) => {
                 return CodeComposer.BuildClass((Type)args[0]);
             }).Execute();
         }
@@ -187,7 +187,7 @@ namespace HomeWorkSix
         public void Execute()
         {
             new RegisterGameDependenciesCommand().Execute();
-            string IMovingClassCode = IoC.Resolve("Adapter", typeof(IMoving));
+            string IMovingClassCode = IoC.Resolve<IMoving>("Adapter", typeof(IMoving));
             // скомпилировать полученную строку, создать экземпляр класса из скомпилированной строки, передав в конструктор _map
         }
     }
