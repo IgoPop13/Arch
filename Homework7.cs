@@ -38,3 +38,64 @@
 Итого: 10 баллов
 Задание считается принятым, если набрано не менее 7 баллов.
 */
+
+using System;
+using Xunit;
+using System.Threading;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Text;
+using System.Reflection;
+using HomeWorkThree;
+
+namespace HomeWorkSeven
+{
+    class RunThread
+    {
+        BlockingCollection<ICommand> q = new BlockingCollection<ICommand>();
+        GameThread gt = new GameThread(q);
+        gt.Start();
+    }
+
+    interface IReciever
+    {
+        ICommand Recieve();
+    }
+
+    class GameThread
+    {
+        BlockingCollection<ICommand> _q;
+
+        public BlockingCollection<ICommand> Queue
+        {
+            get
+            {
+                return _q;
+            }
+        }
+
+        public GameThread(BlockingCollection<ICommand> q)
+        {
+            _q = q;
+        }
+
+        public void Start()
+        {
+            bool stop = false;
+
+            ICommand cmd;
+
+            Thread t = new Thread(
+                () =>
+                {
+                    while (!stop)
+                    {
+                        cmd = q.Take();
+                        cmd.Execute();
+                    }
+                }
+            );
+        }
+    }
+}
