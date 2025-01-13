@@ -55,6 +55,13 @@ namespace HomeWorkSeven
     {
         private BlockingCollection<GameThread> _gameThreadCollection;
 
+        public RunGame()
+        {
+            IoCInit();
+            _gameThreadCollection = new BlockingCollection<GameThread>();
+            AddThreads();
+        }
+
         private void IoCInit()
         {
             IoC.Resolve<ICommand>("IoC.Register", $"Handler.{ExceptionCommand.GetType().Name}.{SomeException.GetType().Name}", (object[] args) => {
@@ -63,13 +70,6 @@ namespace HomeWorkSeven
             IoC.Resolve<ICommand>("IoC.Register", $"Handler.{CommonCommand.GetType().Name}.{SomeException.GetType().Name}", (object[] args) => {
                 new ExceptionHandler();
             }).Execute();
-        }
-        
-        public void RunGame()
-        {
-            IoCInit();
-            _gameThreadCollection = new BlockingCollection<GameThread>();
-            AddThreads();
         }
 
         [TestMethod]
