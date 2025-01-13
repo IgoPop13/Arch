@@ -18,21 +18,21 @@
 Последовательность шагов решения:
 
 OK 1. Реализовать код, который запускается в отдельном потоке и делает следующее: В цикле получает из потокобезопасной очереди команду и запускает ее. Выброс исключения из команды не должен прерывать выполнение потока.
-2. Написать команду, которая стартует код, написанный в пункте 1 в отдельном потоке.
-3. Написать команду, которая останавливает цикл выполнения команд из пункта 1, не дожидаясь их полного завершения (hard stop).
-4. Написать команду, которая останавливает цикл выполнения команд из пункта 1, только после того, как все команды завершат свою работу (soft stop).
+OK 2. Написать команду, которая стартует код, написанный в пункте 1 в отдельном потоке.
+OK 3. Написать команду, которая останавливает цикл выполнения команд из пункта 1, не дожидаясь их полного завершения (hard stop).
+OK 4. Написать команду, которая останавливает цикл выполнения команд из пункта 1, только после того, как все команды завершат свою работу (soft stop).
 5. Написать тесты на команду запуска и остановки потока.
 
 Критерии оценки:
 За выполнение каждого пункта, перечисленного ниже начисляются баллы:
 
-ДЗ сдано на проверку - 2 балла
-Код решения опубликован на github/gitlab - 1 балл
-Настроен CI - 2 балла
-Код компилируется без ошибок - 1 балл.
+OK ДЗ сдано на проверку - 2 балла
+OK Код решения опубликован на github/gitlab - 1 балл
+OK Настроен CI - 2 балла
+OK Код компилируется без ошибок - 1 балл.
 Написать тест, который проверяет, что после команды старт поток запущен - 1балл и 4 балла - если используются условные события синхронизации.
-Написать тест, который проверяет, что после команды hard stop, поток завершается - 1 балл
-Написать тест, который проверяет, что после команды soft stop, поток завершается только после того, как все задачи закончились - 2 балла
+OK Написать тест, который проверяет, что после команды hard stop, поток завершается - 1 балл
+OK Написать тест, который проверяет, что после команды soft stop, поток завершается только после того, как все задачи закончились - 2 балла
 Итого: 10 баллов
 Задание считается принятым, если набрано не менее 7 баллов.
 */
@@ -51,6 +51,16 @@ namespace HomeWorkSeven
 {
     class RunGame
     {
+        private IoCInit()
+        {
+            IoC.Resolve<ICommand>("IoC.Register", $"Handler.{ExceptionCommand.GetType().Name}.{SomeException.GetType().Name}", (object[] args) => {
+                new ExceptionHandler();
+            }).Execute();
+            IoC.Resolve<ICommand>("IoC.Register", $"Handler.{CommonCommand.GetType().Name}.{SomeException.GetType().Name}", (object[] args) => {
+                new ExceptionHandler();
+            }).Execute();
+        }
+
         BlockingCollection<GameThread> _gameThreadCollection;
         
         public RunGame()
@@ -60,11 +70,56 @@ namespace HomeWorkSeven
 
         public void AddThread()
         {
-            BlockingCollection<ICommand> q = new BlockingCollection<ICommand>();
-            GameThread gt = new GameThread(q);
-            _gameThreadCollection.Add();
-            RunNewThreadCommand runNewThreadCommand = new RunNewThreadCommand(gt);
-            runNewThreadCommand.Execute();
+            BlockingCollection<ICommand> q;
+            GameThread gt;
+            
+            // тест SoftStop
+            q = new BlockingCollection<ICommand>();
+            gt = new GameThread(q);
+            _gameThreadCollection.Add(gt);
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new ExceptionCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new SoftStopCommand(gt));
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            (new RunNewThreadCommand(gt)).Execute();
+            // в очереди должно остаться 0 комманд
+
+            // тест HardStop
+            q = new BlockingCollection<ICommand>();
+            gt = new GameThread(q);
+            _gameThreadCollection.Add(gt);
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new ExceptionCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new HardStopCommand(gt));
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            q.Add(new CommonCommand());
+            (new RunNewThreadCommand(gt)).Execute();
+            // в очереди должно остаться 5 команд
         }
     }
 
@@ -85,6 +140,12 @@ namespace HomeWorkSeven
     class GameThread
     {
         BlockingCollection<ICommand> _q;
+        bool _stop;
+
+        public bool Stop()
+        {
+            _stop = true;
+        }
 
         public BlockingCollection<ICommand> Queue
         {
@@ -94,6 +155,14 @@ namespace HomeWorkSeven
             }
         }
 
+        private void StartHook()
+        {
+        }
+
+        private void StopHook()
+        {
+        }
+
         public GameThread(BlockingCollection<ICommand> q)
         {
             _q = q;
@@ -101,13 +170,14 @@ namespace HomeWorkSeven
 
         public void Start()
         {
-            bool stop = false;
+            _stop = false;
 
             ICommand cmd;
 
             Thread t = new Thread(
                 () =>
                 {
+                    StartHook();
                     while (!stop)
                     {
                         cmd = q.Take();
@@ -117,11 +187,91 @@ namespace HomeWorkSeven
                         }
                         catch (Exception e)
                         {
-                            IoC.Resolve<ICommand>("HANDLER", cmd, e).Execute; // прописать обработчик исключения в IoC.
+                            IoC.Resolve<ICommand>($"Handler.{cmd.GetType().Name}.{e.GetType().Name}").Execute();
                         }
                     }
+                    StopHook();
                 }
             );
+        }
+    }
+
+    class HardStopCommand : ICommand
+    {
+        GameThread _t;
+        public HardStopCommand(GameThread t)
+        {
+            _t = t;
+        }
+        
+        public void Execute()
+        {
+            _t.Stop();
+        }
+    }
+
+    class SoftStopCommand : ICommand
+    {
+        GameThread _t;
+        BlockingCollection<ICommand> _q;
+
+        public SoftStopCommand(GameThread t)
+        {
+            _t = t;
+        }
+        
+        public void Execute()
+        {
+            _q = _t.Queue;
+
+            if (_q.Count == 0)
+            {
+                _t.Stop();
+            }
+            else
+            {
+                _q.Add(new SoftStopCommand(_t));
+            }
+        }
+    }
+
+    class CommonCommand : ICommand
+    {
+        public CommonCommand()
+        {
+        }
+
+        public void Execute()
+        {
+            // какие-то действия
+        }
+    }
+
+    class ExceptionCommand : ICommand
+    {
+        public ExceptionCommand()
+        {
+        }
+        
+        public void Execute()
+        {
+            // какие-то действия
+            throw new SomeException();
+        }
+    }
+
+    class SomeException : Exception
+    {
+    }
+
+    class ExceptionHandler : ICommand
+    {
+        public ExceptionHandler()
+        {
+        }
+        public void Execute()
+        {
+            // обработка исключения
         }
     }
 }
