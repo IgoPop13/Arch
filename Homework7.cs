@@ -45,10 +45,12 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Reflection;
+using Moq;
 using HomeWorkThree;
 
 namespace HomeWorkSeven
 {
+    [TestClass]
     class RunGame
     {
         private IoCInit()
@@ -61,23 +63,24 @@ namespace HomeWorkSeven
             }).Execute();
         }
 
-        BlockingCollection<GameThread> _gameThreadCollection;
+        private BlockingCollection<GameThread> _gameThreadCollection;
         
         public RunGame()
         {
+            IoCInit();
             _gameThreadCollection = new BlockingCollection<GameThread>();
+            AddThreads();
         }
 
-        public void AddThread()
+        [TestMethod]
+        private void AddThreads()
         {
-            BlockingCollection<ICommand> q;
-            GameThread gt;
-            
             // тест SoftStop
-            q = new BlockingCollection<ICommand>();
-            gt = new GameThread(q);
-            _gameThreadCollection.Add(gt);
-            q.Add(new CommonCommand());
+            BlockingCollection<ICommand> q1 = new BlockingCollection<ICommand>();
+            GameThread gt1 = new GameThread(q1);
+            _gameThreadCollection.Add(gt1);
+            ICommand c1 = new CommonCommand();
+            q.Add(c1);
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
@@ -88,20 +91,20 @@ namespace HomeWorkSeven
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
-            q.Add(new SoftStopCommand(gt));
+            q.Add(new SoftStopCommand(gt1));
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
-            (new RunNewThreadCommand(gt)).Execute();
-            // в очереди должно остаться 0 комманд
+            (new RunNewThreadCommand(gt1)).Execute();
 
             // тест HardStop
-            q = new BlockingCollection<ICommand>();
-            gt = new GameThread(q);
-            _gameThreadCollection.Add(gt);
-            q.Add(new CommonCommand());
+            BlockingCollection<ICommand> q2 = new BlockingCollection<ICommand>();
+            GameThread gt2 = new GameThread(q2);
+            _gameThreadCollection.Add(gt2);
+            ICommand c2 = new CommonCommand();
+            q.Add(c2);
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
@@ -112,14 +115,23 @@ namespace HomeWorkSeven
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
-            q.Add(new HardStopCommand(gt));
+            q.Add(new HardStopCommand(gt2));
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
             q.Add(new CommonCommand());
-            (new RunNewThreadCommand(gt)).Execute();
+            (new RunNewThreadCommand(gt2)).Execute();
+
+            // в очереди должно остаться 0 комманд
+            Assert.WasCalled(c1.Execute);
+            Assert.WasCalled(gt1.StopHook);
+            Assert.AreEqual(q1.Count, 0);
+
             // в очереди должно остаться 5 команд
+            Assert.WasCalled(c2.Execute);
+            Assert.WasCalled(gt2.StopHook);
+            Assert.AreEqual(q2.Count, 5);
         }
     }
 
@@ -155,11 +167,11 @@ namespace HomeWorkSeven
             }
         }
 
-        private void StartHook()
+        public void StartHook()
         {
         }
 
-        private void StopHook()
+        public void StopHook()
         {
         }
 
