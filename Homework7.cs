@@ -63,7 +63,6 @@ namespace HomeWorkSeven
     class RunGame
     {
         private BlockingCollection<GameThread> _gameThreadCollection;
-        private Mock<IContactManagerRepository> _mockRepository;
 
         public RunGame()
         {
@@ -82,7 +81,7 @@ namespace HomeWorkSeven
             }).Execute();
         }
 
-        private void AddThreads()
+        public void AddThreads()
         {
             // тест SoftStop
             BlockingCollection<ICommand> q1 = new BlockingCollection<ICommand>();
