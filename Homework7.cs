@@ -45,15 +45,25 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Reflection;
-using Moq;
 using HomeWorkThree;
 
 namespace HomeWorkSeven
 {
-    [TestClass]
+    public class UTests
+    {
+        [Fact]
+        public static void Asserts(ICommand c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
+        {
+            Assert.WasCalled(c.Execute);
+            Assert.WasCalled(gt.StopHook);
+            Assert.AreEqual(q.Count, qLength);
+        }
+    }
+
     class RunGame
     {
         private BlockingCollection<GameThread> _gameThreadCollection;
+        private Mock<IContactManagerRepository> _mockRepository;
 
         public RunGame()
         {
@@ -72,7 +82,6 @@ namespace HomeWorkSeven
             }).Execute();
         }
 
-        [TestMethod]
         private void AddThreads()
         {
             // тест SoftStop
@@ -124,14 +133,10 @@ namespace HomeWorkSeven
             (new RunNewThreadCommand(gt2)).Execute();
 
             // в очереди должно остаться 0 комманд
-            Assert.WasCalled(c1.Execute);
-            Assert.WasCalled(gt1.StopHook);
-            Assert.AreEqual(q1.Count, 0);
+            UTests.Asserts(c1, gt1, q1, 0);
 
             // в очереди должно остаться 5 команд
-            Assert.WasCalled(c2.Execute);
-            Assert.WasCalled(gt2.StopHook);
-            Assert.AreEqual(q2.Count, 5);
+            UTests.Asserts(c2, gt2, q2, 5);
         }
     }
 
