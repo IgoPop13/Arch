@@ -60,7 +60,7 @@ namespace HomeWorkSeven
         }
     }
 
-    class RunGame
+    public class RunGame
     {
         private BlockingCollection<GameThread> _gameThreadCollection;
 
@@ -81,7 +81,7 @@ namespace HomeWorkSeven
             }).Execute();
         }
 
-        public void AddThreads()
+        private void AddThreads()
         {
             // тест SoftStop
             BlockingCollection<ICommand> q1 = new BlockingCollection<ICommand>();
