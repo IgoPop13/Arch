@@ -48,7 +48,7 @@ using System.Reflection;
 
 namespace HomeWorkSeven
 {
-    interface ICommand
+    public interface ICommand
     {
         public void Execute();
     }
