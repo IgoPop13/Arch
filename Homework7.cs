@@ -284,6 +284,7 @@ namespace HomeWorkSeven
     {
         public ExceptionHandler()
         {
+            
         }
         public void Execute()
         {
