@@ -67,9 +67,9 @@ namespace HomeWorkSeven
         [Fact]
         public void Execute()
         {
-            Assert.WasCalled(c.Execute);
-            Assert.WasCalled(gt.StopHook);
-            Assert.AreEqual(q.Count, qLength);
+            Assert.WasCalled(_c.Execute);
+            Assert.WasCalled(_gt.StopHook);
+            Assert.AreEqual(_q.Count, _qLength);
         }
     }
 
