@@ -45,10 +45,15 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Reflection;
-using HomeWorkThree;
+// using HomeWorkThree;
 
 namespace HomeWorkSeven
 {
+    interface ICommand
+    {
+        public void Execute();
+    }
+
     public static class UTests
     {
         [Fact]
