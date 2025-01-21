@@ -49,7 +49,7 @@ using HomeWorkThree;
 
 namespace HomeWorkSeven
 {
-    public class UTests
+    public static class UTests
     {
         [Fact]
         public static void Asserts(ICommand c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
