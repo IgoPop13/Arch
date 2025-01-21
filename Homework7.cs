@@ -54,10 +54,23 @@ namespace HomeWorkSeven
         public void Execute();
     }
 
-    public static class UTests
+    public class UTest : ICommand
     {
+        private ICommand _c;
+        private GameThread _gt;
+        private BlockingCollection<ICommand> _q;
+        private int _qLength;
+
+        public UTest(ICommand c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
+        {
+            _c = c;
+            _gt = gt;
+            _q = q;
+            _qLength = qLength;
+        }
+
         [Fact]
-        public static void Asserts(ICommand c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
+        public void Execute()
         {
             Assert.WasCalled(c.Execute);
             Assert.WasCalled(gt.StopHook);
@@ -137,10 +150,12 @@ namespace HomeWorkSeven
             (new RunNewThreadCommand(gt2)).Execute();
 
             // в очереди должно остаться 0 комманд
-            UTests.Asserts(c1, gt1, q1, 0);
+            ICommand test1 = new UTest(c1, gt1, q1, 0);
+            test1.Execute();
 
             // в очереди должно остаться 5 команд
-            UTests.Asserts(c2, gt2, q2, 5);
+            ICommand test2 = new UTest(c2, gt2, q2, 5);
+            test2.Execute();
         }
     }
 
