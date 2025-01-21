@@ -139,7 +139,7 @@ namespace HomeWorkSeven
         }
     }
 
-    class RunNewThreadCommand : ICommand
+    public class RunNewThreadCommand : ICommand
     {
         GameThread _gt;
 
@@ -153,7 +153,7 @@ namespace HomeWorkSeven
         }
     }
 
-    class GameThread
+    public class GameThread
     {
         BlockingCollection<ICommand> _q;
         bool _stop;
@@ -212,7 +212,7 @@ namespace HomeWorkSeven
         }
     }
 
-    class HardStopCommand : ICommand
+    public class HardStopCommand : ICommand
     {
         GameThread _t;
         public HardStopCommand(GameThread t)
@@ -226,7 +226,7 @@ namespace HomeWorkSeven
         }
     }
 
-    class SoftStopCommand : ICommand
+    public class SoftStopCommand : ICommand
     {
         GameThread _t;
         BlockingCollection<ICommand> _q;
@@ -251,7 +251,7 @@ namespace HomeWorkSeven
         }
     }
 
-    class CommonCommand : ICommand
+    public class CommonCommand : ICommand
     {
         public CommonCommand()
         {
@@ -263,7 +263,7 @@ namespace HomeWorkSeven
         }
     }
 
-    class ExceptionCommand : ICommand
+    public class ExceptionCommand : ICommand
     {
         public ExceptionCommand()
         {
@@ -276,11 +276,11 @@ namespace HomeWorkSeven
         }
     }
 
-    class SomeException : Exception
+    public class SomeException : Exception
     {
     }
 
-    class ExceptionHandler : ICommand
+    public class ExceptionHandler : ICommand
     {
         public ExceptionHandler()
         {
