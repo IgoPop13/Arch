@@ -34,7 +34,7 @@ using System.Collections.Generic;
 
 namespace HomeWorkThree
 {
-    interface ICommand
+    public interface ICommand
     {
         public void Execute();
     }
