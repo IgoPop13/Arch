@@ -81,7 +81,7 @@ namespace HomeWorkSeven
             }).Execute();
         }
 
-        private void AddThreads()
+        public void AddThreads()
         {
             // тест SoftStop
             BlockingCollection<ICommand> q1 = new BlockingCollection<ICommand>();
