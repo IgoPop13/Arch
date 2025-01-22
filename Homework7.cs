@@ -45,18 +45,37 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Reflection;
-using HomeWorkThree;
+using HomeWorkFour;
+using HomeWorkFive;
 
 namespace HomeWorkSeven
 {
-    public class UTests
+    public interface ICommandM : ICommand
     {
-        [Fact]
-        public static void Asserts(ICommand c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
+        public bool WasCalled();
+    }
+
+    public class UTst : ICommand
+    {
+        ICommandM _c;
+        GameThread _gt;
+        BlockingCollection<ICommand> _q;
+        int _qLength;
+
+        public UTst(ICommandM c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
         {
-            Assert.WasCalled(c.Execute);
-            Assert.WasCalled(gt.StopHook);
-            Assert.AreEqual(q.Count, qLength);
+            _c = c;
+            _gt = gt;
+            _q = q;
+            _qLength = qLength;
+        }
+
+        public void Execute()
+        {
+            bool result;
+            result = _c.WasCalled();
+            result = result && _gt.StopHookWasCalled();
+            result = result && (_q.Count == _qLength);
         }
     }
 
@@ -73,73 +92,75 @@ namespace HomeWorkSeven
 
         private void IoCInit()
         {
-            IoC.Resolve<ICommand>("IoC.Register", $"Handler.{ExceptionCommand.GetType().Name}.{SomeException.GetType().Name}", (object[] args) => {
+            IoC.Resolve<ICommand>("IoC.Register", "Handler.ExceptionCommand.SomeException", (object[] args) => {
                 new ExceptionHandler();
             }).Execute();
-            IoC.Resolve<ICommand>("IoC.Register", $"Handler.{CommonCommand.GetType().Name}.{SomeException.GetType().Name}", (object[] args) => {
+            IoC.Resolve<ICommand>("IoC.Register", "Handler.CommonCommand.SomeException", (object[] args) => {
                 new ExceptionHandler();
             }).Execute();
         }
 
-        private void AddThreads()
+        public void AddThreads()
         {
             // тест SoftStop
             BlockingCollection<ICommand> q1 = new BlockingCollection<ICommand>();
             GameThread gt1 = new GameThread(q1);
             _gameThreadCollection.Add(gt1);
-            ICommand c1 = new CommonCommand();
-            q.Add(c1);
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new ExceptionCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new SoftStopCommand(gt1));
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
+            ICommandM c1 = new CommonCommand();
+            q1.Add(c1);
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new ExceptionCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new SoftStopCommand(gt1));
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
+            q1.Add(new CommonCommand());
             (new RunNewThreadCommand(gt1)).Execute();
 
             // тест HardStop
             BlockingCollection<ICommand> q2 = new BlockingCollection<ICommand>();
             GameThread gt2 = new GameThread(q2);
             _gameThreadCollection.Add(gt2);
-            ICommand c2 = new CommonCommand();
-            q.Add(c2);
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new ExceptionCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new HardStopCommand(gt2));
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
-            q.Add(new CommonCommand());
+            ICommandM c2 = new CommonCommand();
+            q2.Add(c2);
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new ExceptionCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new HardStopCommand(gt2));
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
+            q2.Add(new CommonCommand());
             (new RunNewThreadCommand(gt2)).Execute();
 
             // в очереди должно остаться 0 комманд
-            UTests.Asserts(c1, gt1, q1, 0);
+            ICommand test1 = new UTst(c1, gt1, q1, 0);
+            test1.Execute();
 
             // в очереди должно остаться 5 команд
-            UTests.Asserts(c2, gt2, q2, 5);
+            ICommand test2 = new UTst(c2, gt2, q2, 5);
+            test2.Execute();
         }
     }
 
-    class RunNewThreadCommand : ICommand
+    public class RunNewThreadCommand : ICommand
     {
         GameThread _gt;
 
@@ -153,22 +174,25 @@ namespace HomeWorkSeven
         }
     }
 
-    class GameThread
+    public class GameThread
     {
         BlockingCollection<ICommand> _q;
         bool _stop;
+        bool _stopHookCalled;
 
-        public bool Stop()
+        public bool StopHookWasCalled()
+        {
+            return _stopHookCalled;
+        }
+
+        public void Stop()
         {
             _stop = true;
         }
 
-        public BlockingCollection<ICommand> Queue
+        public BlockingCollection<ICommand> Queue()
         {
-            get
-            {
-                return _q;
-            }
+            return _q;
         }
 
         public void StartHook()
@@ -177,11 +201,14 @@ namespace HomeWorkSeven
 
         public void StopHook()
         {
+            _stopHookCalled = true;
         }
 
         public GameThread(BlockingCollection<ICommand> q)
         {
             _q = q;
+            _stop = false;
+            _stopHookCalled = false;
         }
 
         public void Start()
@@ -194,9 +221,9 @@ namespace HomeWorkSeven
                 () =>
                 {
                     StartHook();
-                    while (!stop)
+                    while (!_stop)
                     {
-                        cmd = q.Take();
+                        cmd = _q.Take();
                         try
                         {
                             cmd.Execute();
@@ -212,9 +239,10 @@ namespace HomeWorkSeven
         }
     }
 
-    class HardStopCommand : ICommand
+    public class HardStopCommand : ICommand
     {
         GameThread _t;
+
         public HardStopCommand(GameThread t)
         {
             _t = t;
@@ -226,7 +254,7 @@ namespace HomeWorkSeven
         }
     }
 
-    class SoftStopCommand : ICommand
+    public class SoftStopCommand : ICommand
     {
         GameThread _t;
         BlockingCollection<ICommand> _q;
@@ -238,7 +266,7 @@ namespace HomeWorkSeven
         
         public void Execute()
         {
-            _q = _t.Queue;
+            _q = _t.Queue();
 
             if (_q.Count == 0)
             {
@@ -251,19 +279,27 @@ namespace HomeWorkSeven
         }
     }
 
-    class CommonCommand : ICommand
+    public class CommonCommand : ICommandM
     {
+        int calledCount = 0;
+
         public CommonCommand()
         {
+        }
+
+        public bool WasCalled()
+        {
+            return calledCount > 0;
         }
 
         public void Execute()
         {
             // какие-то действия
+            calledCount++;
         }
     }
 
-    class ExceptionCommand : ICommand
+    public class ExceptionCommand : ICommand
     {
         public ExceptionCommand()
         {
@@ -276,14 +312,15 @@ namespace HomeWorkSeven
         }
     }
 
-    class SomeException : Exception
+    public class SomeException : Exception
     {
     }
 
-    class ExceptionHandler : ICommand
+    public class ExceptionHandler : ICommand
     {
         public ExceptionHandler()
         {
+            
         }
         public void Execute()
         {
