@@ -63,7 +63,7 @@ namespace HomeWorkSeven
         BlockingCollection<ICommand> _q;
         int _qLength;
 
-        public UTest(ICommandM c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
+        public UTst(ICommandM c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
         {
             _c = c;
             _gt = gt;
