@@ -70,12 +70,12 @@ namespace HomeWorkSeven
             _qLength = qLength;
         }
 
-        [Fact]
         public void Execute()
         {
-            Assert.IsTrue(_c.WasCalled());
-            Assert.IsTrue(_gt.StopHookWasCalled());
-            Assert.AreEqual(_q.Count, _qLength);
+            bool result;
+            result = _c.WasCalled();
+            result = result && _gt.StopHookWasCalled();
+            result = result && (_q.Count == _qLength);
         }
     }
 
@@ -221,9 +221,9 @@ namespace HomeWorkSeven
                 () =>
                 {
                     StartHook();
-                    while (!stop)
+                    while (!_stop)
                     {
-                        cmd = q.Take();
+                        cmd = _q.Take();
                         try
                         {
                             cmd.Execute();
