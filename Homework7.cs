@@ -92,10 +92,10 @@ namespace HomeWorkSeven
 
         private void IoCInit()
         {
-            IoC.Resolve<ICommand>("IoC.Register", $"Handler.{ExceptionCommand.GetType().Name}.{SomeException.GetType().Name}", (object[] args) => {
+            IoC.Resolve<ICommand>("IoC.Register", $"Handler.{ExceptionCommand.Name}.{SomeException.Name}", (object[] args) => {
                 new ExceptionHandler();
             }).Execute();
-            IoC.Resolve<ICommand>("IoC.Register", $"Handler.{CommonCommand.GetType().Name}.{SomeException.GetType().Name}", (object[] args) => {
+            IoC.Resolve<ICommand>("IoC.Register", $"Handler.{CommonCommand.Name}.{SomeException.Name}", (object[] args) => {
                 new ExceptionHandler();
             }).Execute();
         }
