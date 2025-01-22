@@ -185,7 +185,7 @@ namespace HomeWorkSeven
             return _stopHookCalled;
         }
 
-        public bool Stop()
+        public void Stop()
         {
             _stop = true;
         }
@@ -201,7 +201,7 @@ namespace HomeWorkSeven
 
         public void StopHook()
         {
-            bool _stopHookCalled = true;
+            _stopHookCalled = true;
         }
 
         public GameThread(BlockingCollection<ICommand> q)
