@@ -46,17 +46,24 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Reflection;
 using HomeWorkThree;
+using HomeWorkFour;
+using HomeWorkFive;
 
 namespace HomeWorkSeven
 {
+    public inerface ICommandM : ICommand
+    {
+        public bool WasCalled();
+    }
+
     public class UTest : ICommand
     {
-        private ICommand _c;
+        private ICommandM _c;
         private GameThread _gt;
         private BlockingCollection<ICommand> _q;
         private int _qLength;
 
-        public UTest(ICommand c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
+        public UTest(ICommandM c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
         {
             _c = c;
             _gt = gt;
@@ -67,8 +74,8 @@ namespace HomeWorkSeven
         [Fact]
         public void Execute()
         {
-            Assert.WasCalled(_c.Execute);
-            Assert.WasCalled(_gt.StopHook);
+            Assert.IsTrue(_c.WasCalled());
+            Assert.IsTrue(_gt.StopHook);
             Assert.AreEqual(_q.Count, _qLength);
         }
     }
@@ -100,7 +107,7 @@ namespace HomeWorkSeven
             BlockingCollection<ICommand> q1 = new BlockingCollection<ICommand>();
             GameThread gt1 = new GameThread(q1);
             _gameThreadCollection.Add(gt1);
-            ICommand c1 = new CommonCommand();
+            ICommandM c1 = new CommonCommand();
             q1.Add(c1);
             q1.Add(new CommonCommand());
             q1.Add(new CommonCommand());
@@ -124,7 +131,7 @@ namespace HomeWorkSeven
             BlockingCollection<ICommand> q2 = new BlockingCollection<ICommand>();
             GameThread gt2 = new GameThread(q2);
             _gameThreadCollection.Add(gt2);
-            ICommand c2 = new CommonCommand();
+            ICommandM c2 = new CommonCommand();
             q2.Add(c2);
             q2.Add(new CommonCommand());
             q2.Add(new CommonCommand());
@@ -172,6 +179,12 @@ namespace HomeWorkSeven
     {
         BlockingCollection<ICommand> _q;
         bool _stop;
+        bool _stopHookCalled;
+
+        public bool StopHookWasCalled()
+        {
+            return _stopHookCalled;
+        }
 
         public bool Stop()
         {
@@ -192,11 +205,14 @@ namespace HomeWorkSeven
 
         public void StopHook()
         {
+            bool _stopHookCalled = true;
         }
 
         public GameThread(BlockingCollection<ICommand> q)
         {
             _q = q;
+            _stop = false;
+            _stopHookCalled = false;
         }
 
         public void Start()
@@ -230,6 +246,7 @@ namespace HomeWorkSeven
     public class HardStopCommand : ICommand
     {
         GameThread _t;
+
         public HardStopCommand(GameThread t)
         {
             _t = t;
@@ -266,15 +283,23 @@ namespace HomeWorkSeven
         }
     }
 
-    public class CommonCommand : ICommand
+    public class CommonCommand : ICommandM
     {
+        int calledCount = 0;
+
         public CommonCommand()
         {
+        }
+
+        public bool WasCalled()
+        {
+            return calledCount > 0;
         }
 
         public void Execute()
         {
             // какие-то действия
+            calledCount++;
         }
     }
 
