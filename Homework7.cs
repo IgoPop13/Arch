@@ -266,7 +266,7 @@ namespace HomeWorkSeven
         
         public void Execute()
         {
-            _q = _t.Queue;
+            _q = _t.Queue();
 
             if (_q.Count == 0)
             {
