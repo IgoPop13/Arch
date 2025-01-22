@@ -51,7 +51,7 @@ using HomeWorkFive;
 
 namespace HomeWorkSeven
 {
-    public inerface ICommandM : ICommand
+    public interface ICommandM : ICommand
     {
         public bool WasCalled();
     }
