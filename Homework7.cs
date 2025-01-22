@@ -56,7 +56,7 @@ namespace HomeWorkSeven
         public bool WasCalled();
     }
 
-    public class UTest : ICommand
+    public class UTst : ICommand
     {
         ICommandM _c;
         GameThread _gt;
@@ -75,7 +75,7 @@ namespace HomeWorkSeven
         public void Execute()
         {
             Assert.IsTrue(_c.WasCalled());
-            Assert.IsTrue(_gt.StopHook);
+            Assert.IsTrue(_gt.StopHookWasCalled());
             Assert.AreEqual(_q.Count, _qLength);
         }
     }
@@ -152,11 +152,11 @@ namespace HomeWorkSeven
             (new RunNewThreadCommand(gt2)).Execute();
 
             // в очереди должно остаться 0 комманд
-            ICommand test1 = new UTest(c1, gt1, q1, 0);
+            ICommand test1 = new UTst(c1, gt1, q1, 0);
             test1.Execute();
 
             // в очереди должно остаться 5 команд
-            ICommand test2 = new UTest(c2, gt2, q2, 5);
+            ICommand test2 = new UTst(c2, gt2, q2, 5);
             test2.Execute();
         }
     }
