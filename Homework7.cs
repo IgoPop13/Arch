@@ -39,7 +39,6 @@ OK Написать тест, который проверяет, что посл
 
 using System;
 using Xunit;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
