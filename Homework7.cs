@@ -57,10 +57,10 @@ namespace HomeWorkSeven
 
     public class UTest : ICommand
     {
-        private ICommandM _c;
-        private GameThread _gt;
-        private BlockingCollection<ICommand> _q;
-        private int _qLength;
+        ICommandM _c;
+        GameThread _gt;
+        BlockingCollection<ICommand> _q;
+        int _qLength;
 
         public UTest(ICommandM c, GameThread gt, BlockingCollection<ICommand> q, int qLength)
         {
@@ -190,12 +190,9 @@ namespace HomeWorkSeven
             _stop = true;
         }
 
-        public BlockingCollection<ICommand> Queue
+        public BlockingCollection<ICommand> Queue()
         {
-            get
-            {
-                return _q;
-            }
+            return _q;
         }
 
         public void StartHook()
