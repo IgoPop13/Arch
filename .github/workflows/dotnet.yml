@@ -12,6 +12,8 @@ on:
 jobs:
   build:
 
+    project: vscode-remote-try-dotnet.csproj
+
     runs-on: ubuntu-latest
 
     steps:
