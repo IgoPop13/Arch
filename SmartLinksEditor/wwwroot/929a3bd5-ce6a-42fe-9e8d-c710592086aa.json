@@ -1,0 +1,50 @@
+{
+  "event":
+  {
+    "id": "929a3bd5-ce6a-42fe-9e8d-c710592086aa",
+    "start": "2025-03-12T17:00:00+03",
+    "end": "2025-03-12T19:00:00+03",
+    "sequence": [
+      {
+        "dependency": "SetLanguage",
+        "supportedLanguages": [ "ru", "by" ],
+        "defaultLanguage": "en"
+      },
+      {
+        "dependency": "ManageTime",
+        "period": "lt",
+        "redirectTo": "",
+        "templateName": "before.cshtml"
+      },
+      {
+        "dependency": "ManageTime",
+        "period": "in",
+        "redirectTo": "",
+        "templateName": "during.cshtml"
+      },
+      {
+        "dependency": "ManageTime",
+        "period": "gt",
+        "redirectTo": "timetable.cshtml",
+        "templateName": "after.cshtml"
+      }
+    ]
+  }
+}
+
+/*
+Событие:
+- по времени
+	- до начала (текущее время < времени начала),
+	- в процессе (текущее время между временем начала и временем окончания),
+	- прошло (текущее время больше времени окончания)
+- по геопозиции
+	- более 100 км
+	- менее 100 км
+- по языку клиента
+	- есть описание события на этом языке
+	- нет описания события на этом языке
+- авторизация
+	- для авторизованных
+	- для неавторизованных
+*/
