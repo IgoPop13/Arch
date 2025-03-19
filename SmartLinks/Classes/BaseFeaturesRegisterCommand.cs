@@ -43,6 +43,17 @@ namespace SmartLinks.Classes
                 (object[] args) => { return new string[] { "gt", "gtEq", "lt", "ltEq", "eq", "in", "between", "notEq", "notIn", "beyond" }; }
             ).Execute();
 
+            IoC.Resolve<ICommand>(
+                "IoC.Register",
+                "GetFeaturesListCommand",
+                (object[] args) => new GetFeaturesListCommand()
+            ).Execute();
+
+            IoC.Resolve<ICommand>(
+                "IoC.Register",
+                "FeaturesRegisterCommand",
+                (object[] args) => new FeaturesRegisterCommand(IoC.Resolve<string[]>("FeaturesList"))
+            ).Execute();
 
             // все базовые операции прописаны только для типа int, для остальных прописывается аналогично
             // либо - что предпочтительнее - можно определять тип arg[0] и приводить к нему все аргументы при сравнении, тогда зависимости для операций ниже будут универсальными для всех типов

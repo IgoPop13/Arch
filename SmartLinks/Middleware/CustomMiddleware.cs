@@ -18,16 +18,23 @@ namespace SmartLinks.Middleware
         }
         public async Task Invoke(HttpContext context)
         {
-            MacroCommand initCommand = new MacroCommand
+            new MacroCommand
                 (new List<SmartLinks.Interfaces.ICommand>
                     {
                         new InitCommand(),
                         new BaseFeaturesRegisterCommand(context),
-                        new FeaturesRegisterCommand(),
+                        IoC.Resolve<SmartLinks.Interfaces.ICommand>("GetFeaturesListCommand")
+                    }
+                ).Execute();
+
+            new MacroCommand
+                (new List<SmartLinks.Interfaces.ICommand>
+                    {
+                        IoC.Resolve<SmartLinks.Interfaces.ICommand>("FeaturesRegisterCommand"),
                         new GetEventConfigCommand()
                     }
-                );
-            initCommand.Execute();
+                ).Execute();
+
 
             Dictionary<string, object> eventObj = IoC.Resolve<Dictionary<string, object>>("Event." + IoC.Resolve<string>("Event.Current.ID"));
 

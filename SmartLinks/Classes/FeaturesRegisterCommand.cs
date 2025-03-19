@@ -7,10 +7,9 @@ namespace SmartLinks.Classes
     {
         private string[] _features;
 
-        public FeaturesRegisterCommand()
+        public FeaturesRegisterCommand(string[] features)
         {
-            new GetFeaturesListCommand().Execute();
-            _features = IoC.Resolve<string[]>("FeaturesList");
+            _features = features;
         }
 
         public void Execute()
