@@ -1,0 +1,67 @@
+/*
+  Предполагается, что в настройках сайта есть необходимые зависимости.
+  Здесь в настройках цепочки обработчиков события передаются параметры для анализа.
+  Для одного обработчика передаётся информация для анализа только одного параметра,
+  т.е. обработчик не может обрабатывать сразу несколько параметров, для обработки
+  нескольких параметров необходимо прописывать столько же обработчиков.
+
+  В реальном приложении необходимо создание json-схемы.
+
+Событие:
+- по времени
+	- до начала (текущее время < времени начала),
+	- в процессе (текущее время между временем начала и временем окончания),
+	- прошло (текущее время больше времени окончания)
+- по геопозиции
+	- более 100 км
+	- менее 100 км
+- по языку клиента
+	- есть описание события на этом языке - выдача страницы на этом языке
+	- нет описания события на этом языке - выдача страницы на английском языке
+- авторизация
+	- для авторизованных
+	- для неавторизованных
+*/
+
+{
+  "event": {
+    "type": "object",
+    "properties": {
+      "eventId": 1,
+      "sequence": [
+        {
+          "comparisonType": "", // gt, gtEq, lt, ltEq, eq, in, between, notEq, notIn, beyond
+          "param": "",
+          "redirectTo": "",
+          "templateName": "",
+          "dependency": "",
+          "breakIfFailed": false
+        },
+        {
+          "comparisonType": "", // gt, gtEq, lt, ltEq, eq, in, between, notEq, notIn, beyond
+          "param": 0,
+          "redirectTo": "",
+          "templateName": "",
+          "dependency": "",
+          "breakIfFailed": false
+        },
+        {
+          "comparisonType": "", // gt, gtEq, lt, ltEq, eq, in, between, notEq, notIn, beyond
+          "param": "",
+          "redirectTo": "",
+          "templateName": "",
+          "dependency": "",
+          "breakIfFailed": false
+        },
+        {
+          "comparisonType": "", // gt, gtEq, lt, ltEq, eq, in, between, notEq, notIn, beyond
+          "param": [ "ru", "en" ],
+          "redirectTo": "",
+          "templateName": "",
+          "dependency": "",
+          "breakIfFailed": false
+        }
+      ]
+    }
+  }
+}
