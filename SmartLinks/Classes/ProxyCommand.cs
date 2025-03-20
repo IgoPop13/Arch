@@ -9,10 +9,6 @@ namespace SmartLinks.Classes
 
         public IProxyCommand NextCommand
         {
-            get
-            {
-                return _nextCommand;
-            }
             set
             {
                 _nextCommand = value;

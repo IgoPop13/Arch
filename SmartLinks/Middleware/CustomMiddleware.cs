@@ -40,15 +40,6 @@ namespace SmartLinks.Middleware
 
             ((IProxyCommand)eventObj["ResponsibilityChainStartCommand"]).Execute();
 
-            // если необходим редирект
-            string location = string.Empty; // адрес должен стать результатом обработчика
-            context.Response.Redirect(location);
-
-            // либо надо отдать страницу без изменения адреса
-            context.Response.ContentType = "text/html";
-            context.Response.StatusCode = 200;
-            // прочитать содержимое файла и поместить его в Response
-
             await _next(context);
         }
     }
